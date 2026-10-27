@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>토익 단어 잡아먹기</title>
+<style>
+  :root{
+    --paper:#FFF9FB;
+    --paper-line:#F1D9E4;
+    --ink:#3A2C35;
+    --ink-soft:#8A7480;
+    --accent:#D6588F;
+    --accent-soft:#FBE6EF;
+    --accent2:#9C6B98;
+    --accent2-soft:#F3E6F0;
+    --correct:#2E9E5B;
+    --correct-soft:#E3F5EA;
+    --red:#D6555F;
+    --red-soft:#FCE8EA;
+    --card-shadow: 0 10px 26px rgba(214,88,143,0.10), 0 2px 6px rgba(58,44,53,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(900px circle at 50% -8%, #FCE3EF 0%, rgba(252,227,239,0) 60%),
+      linear-gradient(180deg, #FFF3F8 0%, var(--paper) 420px);
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+  }
+  .masthead{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .masthead h1{
+    font-family: Georgia, "Nanum Myeongjo", serif;
+    font-size:30px;
+    letter-spacing:0.5px;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .masthead .deck-name-line{
+    margin:0 0 4px;
+    font-size:15px;
+    font-weight:700;
+    color:var(--accent);
+  }
+  .masthead p{
+    margin:0;
+    font-size:13px;
+    color:var(--ink-soft);
+    letter-spacing:0.3px;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin:22px 0 20px;
+    border-bottom:2px solid var(--ink);
+  }
+  .tab{
+    position:relative;
+    flex:1;
+    padding:11px 6px;
+    text-align:center;
+    background:#FBE6EF;
+    border:2px solid var(--ink);
+    border-bottom:none;
+    border-radius:10px 10px 0 0;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    transform:translateY(3px);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    transform:translateY(0);
+  }
+  .badge{
+    display:inline-block;
+    min-width:18px;
+    padding:1px 6px;
+    margin-left:6px;
+    border-radius:999px;
+    background:var(--red);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    vertical-align:middle;
+  }
+  .badge.zero{ background:#E3B7CC; }
+
+  /* ---- Deck selector ---- */
+  .deck-label{
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:0.4px;
+    margin:20px 0 8px;
+    font-weight:700;
+  }
+  .deck-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .deck-card{
+    flex:1;
+    min-width:140px;
+    text-align:left;
+    background:#FBE6EF;
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:12px 14px;
+    cursor:pointer;
+    transition: border-color .12s ease, background .12s ease, transform .08s ease;
+  }
+  .deck-card:hover{ transform:translateY(-1px); }
+  .deck-card.active{
+    background:#fff;
+    border-color:var(--ink);
+    box-shadow:0 4px 10px rgba(32,41,58,0.08);
+  }
+  .deck-card .deck-name{
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .deck-card .deck-meta{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+
+  /* ---- Quiz card ---- */
+  .card{
+    position:relative;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:14px;
+    box-shadow:var(--card-shadow);
+    padding:30px 26px 26px;
+    min-height:300px;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:14px; left:24px; right:24px;
+    height:0;
+    border-top:1.5px dashed #F1D9E4;
+  }
+  .holes{
+    position:absolute;
+    top:-9px; left:50%;
+    transform:translateX(-50%);
+    display:flex; gap:26px;
+  }
+  .holes span{
+    width:16px; height:16px; border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--paper-line);
+    box-shadow: inset 0 2px 3px rgba(0,0,0,0.08);
+  }
+  .progress-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:16px 0 22px;
+  }
+  .progress-bar{
+    height:5px;
+    background:var(--paper-line);
+    border-radius:99px;
+    overflow:hidden;
+    margin-top:6px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    transition:width .25s ease;
+  }
+  .q-type{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    color:var(--accent);
+    background:var(--accent-soft);
+    padding:3px 9px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .q-type.rev{ color:var(--accent2); background:var(--accent2-soft); }
+  .q-word{
+    font-family: Georgia, "Nanum Myeongjo", serif;
+    font-size:26px;
+    font-weight:700;
+    line-height:1.35;
+    margin:0 0 26px;
+    color:var(--ink);
+  }
+  .choices{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .choice{
+    text-align:left;
+    padding:13px 16px;
+    border:1.5px solid var(--paper-line);
+    background:#FFFAFC;
+    border-radius:10px;
+    font-size:14.5px;
+    cursor:pointer;
+    color:var(--ink);
+    transition: border-color .12s ease, background .12s ease, transform .08s ease;
+  }
+  .choice:hover:not(:disabled){
+    border-color:var(--ink-soft);
+    transform:translateY(-1px);
+  }
+  .choice:disabled{ cursor:default; }
+  .choice.correct{
+    border-color:var(--correct);
+    border-width:1.5px;
+    background:var(--correct-soft);
+    color:var(--ink);
+    font-weight:700;
+  }
+  .choice.correct::after{
+    content:" ✓";
+  }
+  .choice.wrong{
+    border-color:var(--red);
+    border-width:1.5px;
+    background:var(--red-soft);
+    color:var(--ink);
+    font-weight:700;
+  }
+  .choice.wrong::after{
+    content:" ✕";
+  }
+  .foot-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    border:none;
+    border-radius:9px;
+    padding:11px 18px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition: filter .12s ease, transform .08s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--ink); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.15); }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border:1.5px solid var(--paper-line); }
+  .btn-ghost:hover{ border-color:var(--ink-soft); color:var(--ink); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .summary{
+    text-align:center;
+    padding:20px 10px 6px;
+  }
+  .summary .score{
+    font-family: Georgia, serif;
+    font-size:44px;
+    font-weight:700;
+    color:var(--accent);
+    margin:6px 0 2px;
+  }
+  .summary p{ color:var(--ink-soft); font-size:14px; }
+
+  /* ---- Wordbook ---- */
+  .wb-empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+    border:1.5px dashed var(--paper-line);
+    border-radius:14px;
+    background:#fff;
+  }
+  .wb-empty .emoji{ font-size:34px; display:block; margin-bottom:10px; }
+  .wb-list{ display:flex; flex-direction:column; gap:10px; }
+  .wb-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:12px;
+    padding:14px 16px;
+    box-shadow:0 2px 6px rgba(32,41,58,0.05);
+  }
+  .wb-text{ flex:1; min-width:0; }
+  .wb-en{ font-weight:700; font-size:15px; color:var(--ink); }
+  .wb-kr{ font-size:13px; color:var(--ink-soft); margin-top:3px; line-height:1.4; }
+  .wb-remove{
+    flex-shrink:0;
+    border:1.5px solid var(--accent);
+    color:var(--accent);
+    background:#fff;
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .wb-remove:hover{ background:var(--accent-soft); }
+
+  .loading{ text-align:center; color:var(--ink-soft); padding:60px 0; font-size:14px; }
+
+  /* ---- Score log ---- */
+  .score-list{ display:flex; flex-direction:column; gap:12px; }
+  .score-card{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:14px;
+    padding:16px 18px;
+    box-shadow:0 2px 6px rgba(61,34,51,0.06);
+  }
+  .score-card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .score-round-name{
+    font-weight:700;
+    font-size:15px;
+    color:var(--ink);
+    border:none;
+    background:transparent;
+    border-bottom:1.5px dashed var(--paper-line);
+    padding:2px 2px 4px;
+    width:120px;
+  }
+  .score-round-name:focus{ outline:none; border-bottom-color:var(--accent); }
+  .score-del{
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:13px;
+  }
+  .score-del:hover{ color:var(--red); }
+  .score-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .score-field label{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    font-weight:700;
+  }
+  .score-field input[type=number]{
+    width:100%;
+    padding:8px 10px;
+    border:1.5px solid var(--paper-line);
+    border-radius:8px;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .score-field input[type=number]:focus{ outline:none; border-color:var(--accent); }
+  .score-scaled{
+    font-size:12px;
+    color:var(--accent2);
+    margin-top:4px;
+    font-weight:700;
+  }
+  .score-total{
+    font-size:13px;
+    color:var(--ink);
+    background:var(--accent-soft);
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:10px;
+    font-weight:700;
+  }
+  .score-note{
+    width:100%;
+    min-height:50px;
+    border:1.5px solid var(--paper-line);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:13px;
+    color:var(--ink);
+    font-family:inherit;
+    resize:vertical;
+  }
+  .score-note:focus{ outline:none; border-color:var(--accent); }
+  .score-add-btn{
+    display:block;
+    width:100%;
+    margin-top:6px;
+    padding:13px;
+    border:1.5px dashed var(--paper-line);
+    background:#fff;
+    border-radius:12px;
+    color:var(--ink-soft);
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .score-add-btn:hover{ border-color:var(--accent); color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="masthead">
+    <h1>토익 단어 잡아먹기</h1>
+    <p id="deck-title" class="deck-name-line">토익 Part7 빈출 어휘</p>
+    <p id="subtitle">총 82개 단어 · 4지선다 시험지</p>
+  </div>
+
+  <div class="deck-label">단어장 선택</div>
+  <div class="deck-row" id="deck-row"></div>
+
+  <div style="margin:10px 0 4px;">
+    <button class="btn btn-primary" onclick="switchTab('mix')">🎲 전체에서 랜덤 20문제</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-quiz" onclick="switchTab('quiz')">시험지</div>
+    <div class="tab" id="tab-mix" onclick="switchTab('mix')">쪽지시험</div>
+    <div class="tab" id="tab-wb" onclick="switchTab('wb')">오답노트<span class="badge zero" id="wb-badge">0</span></div>
+    <div class="tab" id="tab-score" onclick="switchTab('score')">성적 기록</div>
+  </div>
+
+  <div id="quiz-view"></div>
+  <div id="mix-view" style="display:none;"></div>
+  <div id="wb-view" style="display:none;"></div>
+  <div id="score-view" style="display:none;"></div>
+</div>
+
+<script>
+/* ---------------- Word data ---------------- */
+const WORDS_PAR7 = [
+["be-on-track","be on track","진행 중이다"],
+["across-the-board","across the board","전반에 걸쳐"],
+["as-such","as such (문장 앞에 사용 시)","그러한 이유로"],
+["courtesy-of","(by) courtesy of","~의 호의로"],
+["at-your-earliest-convenience","at your earliest convenience","되도록 빨리"],
+["be-accompanied-by","be accompanied by","~을 지참하다, ~와 동행하다"],
+["testimonial","testimonial","추천 글, 추천서, 추천 후기"],
+["kick-off","kick off","시작하다, 시작되다"],
+["roll-out","roll out","출시하다, 말려 있던 것을 펴다"],
+["gear-toward","gear toward","~에 맞추다"],
+["area-of-interest","area of interest","관심 분야"],
+["a-wealth-of","a wealth of","다량의, 풍부한"],
+["liaison","liaison","연락 담당자, 연락책, 연락"],
+["online-presence","online presence","온라인 입지, 온라인상에서의 존재감"],
+["circulation-desk","circulation desk","(도서관 등) 대출 데스크"],
+["go-into-effect","go into effect","시행되다, 발효되다"],
+["in-the-works","in the works","진행되고 있는"],
+["terms-and-conditions","terms and conditions","약관, 조항, 조건"],
+["in-a-timely-manner","in a timely manner","적시에, 시기적절하게"],
+["wrap-up","wrap up","~을 마무리하다"],
+["cutting-edge","cutting-edge","최첨단의"],
+["classified-documents","classified documents","기밀 서류"],
+["jot-down","jot down","적다, 쓰다"],
+["in-attendance","in attendance","참석한, 출석한"],
+["welcome-addition-to","welcome addition to","~에 환영받는 사람"],
+["stand-out","stand out","~이 두드러지다"],
+["per-ones-request","(as) per one's request","~의 요청에 따라"],
+["on-a-personal-note","on a personal note","개인적으로"],
+["that-works","that works","잘되다, 효과가 있다"],
+["as-discussed","as discussed","논의된 바와 같이"],
+["it-remains-to-be-seen","it remains to be seen","지켜봐야 한다"],
+["due-in-part-to","due in part to","일부 ~때문에"],
+["a-wave-of","a wave of","잇따른, 물밀 듯이 밀려오는"],
+["in-response-to","in response to","~에 부응하여, ~에 대한 응답으로"],
+["if-applicable","if applicable","적용되는 경우, 해당하는 경우"],
+["if-possible","if possible","가능하다면"],
+["if-necessary","if necessary","필요하다면"],
+["in-ones-best-interest","in one's best interest","~에게 최선책인"],
+["stipulate","stipulate + that절","~이라고 명시[규정]하다"],
+["a-followed-by-b","A followed by B","A 후에 B가 이어진"],
+["on-behalf-of","on behalf of","~을 대표[대신]하여"],
+["virtually-identical","virtually identical","사실상 똑같은"],
+["be-entered-into-a-drawing","be entered into a drawing","추첨 행사에 참여하다"],
+["first-come-first-served","on a first-come, first-served basis","선착순으로"],
+["take-into-consideration","take A into consideration","A를 고려하다"],
+["considering-that","considering + that절","~한 점을 감안하면"],
+["on-hand","on hand","지원 가능한, 구할 수 있는"],
+["on-such-short-notice","on such short notice","갑작스러운 요청(통보)에도"],
+["keep-informed","keep informed","계속 확인하다"],
+["in-the-interim","in the interim","그 사이[동안]에"],
+["as-part-of","as part of","~의 일환으로, ~의 일부로"],
+["glowing-review","glowing review","극찬"],
+["nonrefundable-deposit","nonrefundable deposit","보증금"],
+["if-so","if so","만일 그렇다면"],
+["those-interested","those interested","관심 있는 사람(들)"],
+["upon-completion","upon completion","완성된 후에, 완료되면"],
+["dozens-of","dozens of","수십의"],
+["please-allow-up-to","please allow up to + 기간","최대 ~ 정도 생각해 주세요"],
+["around-the-clock","around the clock","24시간 내내"],
+["rsvp","RSVP = please reply","참석 여부에 대해 회답하다"],
+["look-forward-to","look forward to + (동)명사","~을 학수고대하다"],
+["follow-up-on","follow up on","이어나가다, 후속 조치를 하다"],
+["get-underway","get underway","시작하다, 진행하다"],
+["as-for","as for","~에게는, ~의 입장에서는, ~에 관해서는"],
+["pay-for-itself","pay for itself","(비용 들인 만큼) 효과를 본다, 본전을 찾다"],
+["be-slated-to","be slated to + 동사원형","~할 예정이다"],
+["last-but-not-least","last, but not least","마지막으로"],
+["starting","starting + 시점","~부터, ~부로"],
+["used-to","used to + 동사원형/명사","~하곤 했다"],
+["not-only-but-also","not only A but also B","A 뿐만 아니라 B도"],
+["physical-location","physical location","실질적[물리적] 장소"],
+["accommodating","accommodating","협조적인, 편의를 봐 주는"],
+["foot-traffic","foot traffic","유동 인구"],
+["come-across","come across","우연히 알게 되다[접하다]"],
+["long-standing","long standing","오래된, 오랜 세월에 걸친"],
+["our-records-show","Our records show + that절","기록상 ~한 것으로 되어 있다"],
+["up-front","up front","미리, 선불로"],
+["by-all-means","by all means","아무쪼록"],
+["lose-ones-spot","lose one's spot","자신의 순서를 놓치다"],
+["of-late","of late","근래에, 근래"],
+["feel-free-to","feel free to + 동사원형","거리낌 없이 ~하다"],
+["have-no-choice-but-to","have no choice but to + 동사원형","~할 수밖에 없다"]
+];
+
+const WORDS_P15 = [
+["p15-take-possesion-of","take possesion of","입수/인수 하다"],
+["p15-due","due","~하기로 되어있는"],
+["p15-imprint","imprint","독립출판 브랜드"],
+["p15-volumes","volumes","서적"],
+["p15-occasion","occasion","행사"],
+["p15-complement","complement","보완하다"],
+["p15-be-off-to-a-great-start","be off to a great start","시작이 좋다"],
+["p15-deliver-a-product-demenstration","(deliver) a product demenstration","제품 시연을 하다"],
+["p15-i-need-to","I need to","~ 해야해요"],
+["p15-the-finance-department","the finance department","재무팀"],
+["p15-business-administration","business administration","경영학"],
+["p15-coordinate","coordinate","총괄하다"],
+["p15-throughout","throughout~","~등의"],
+["p15-unveil","unveil","발표하다"],
+["p15-predecessor","predecessor","전임자, 이전 모델"],
+["p15-successor","successor","후임자, 후속모델"],
+["p15-dissuade","dissuade","단념시키다"],
+["p15-cite","cite","인용하다, 예시/이유를 들다"],
+["p15-in-terms-of","in terms of","~측면에서는"],
+["p15-with-respect-regard-to","with respect/regard to","~에 관하여, 측면에서"],
+["p15-functionality","functionality","기능성"],
+["p15-adapt","adapt","조정하다, 적응하다, 각색하다(change)"],
+["p15-in-circulation","in circulation","현재 쓰이고 있는"],
+["p15-retrieve","retrieve","검색하다"],
+["p15-take-charge-of","take charge of","책임을 지다"],
+["p15-preliminary-run-through","preliminary run-through","사전 리허설"],
+["p15-aficionado","aficionado","덕후"],
+["p15-instructional","instructional","교육용의"],
+["p15-novelty","novelty","참신함"],
+["p15-be-convinced-of","be convinced of","~을 확신하다"],
+["p15-stripe-down","stripe down","벗겨내다, 삭제하다"],
+["p15-modern-sounds","modern sounds","현대음악"],
+["p15-itemized-statement-of-fees","itemized statement of fees","항목별 명세서"],
+["p15-be-assured-that-ensure","be assured that (ensure 사물 : 확실하게하다)","보장받다 = 확신하다, 안심하다"],
+["p15-rest-assured-that","Rest assured that~","~이니 안심하십시오"],
+["p15-adaptation","adaptation","각색작품"],
+["p15-place","place","위치시키다"],
+["p15-minions","minions","하인"],
+["p15-delight","delight","아주 즐겁게하다"],
+["p15-until-recently","until recently","최근까지"],
+["p15-conduct","conduct","수행하다"],
+["p15-halibut","halibut","넙치"],
+["p15-tourism-department","Tourism department","관광부"],
+["p15-officials","officials","공무원"],
+["p15-extensive","extensive","(수량, 범위가) 다양한, 광범위한"],
+["p15-expansive","expansive","(시야, 공간이) 탁 트인"],
+["p15-status","status","지위"],
+["p15-help-out","help out","돕다"],
+["p15-indicate","indicate","명시하다, 나타내다"],
+["p15-resident","resident","주민"],
+["p15-corporate-operations","corporate operations","기업운영, 경영지원"],
+["p15-streamline-corporate-operations","streamline (corporate operations )","효율화,간소화 하다"],
+["p15-on-site","on-site","현장에서"],
+["p15-fill-up","fill-up","기름 가득채우기"],
+["p15-brick-and-mortar-store","brick-and-mortar store","온라인샵의 반대어"],
+["p15-set-apart-from","set ~ apart from","~을 돋보이게 하다"],
+["p15-keep-in-check","keep in check","~을 통제 억제하다"],
+["p15-overhead-costs","overhead costs","간접비용"],
+["p15-source","source","공급자를 찾다"],
+["p15-lane-closure","lane closure","차선 폐쇄"],
+["p15-it-s-all-backed-up","it's all backed up","차가 정체된"],
+["p15-a-dedicated-assistant","a dedicated assistant","전담 보조"],
+["p15-established","established","저명한"],
+["p15-an-illustrious-career","an illustrious career","저명한 커리어"],
+["p15-an-illustrious-history-of-innovation","an illustrious history of innovation","혁신의 빛나는 역사"],
+["p15-distinquished","distinquished","저명한, 뛰어난"],
+["p15-celebrated","celebrated","유명한"],
+["p15-high-profile-figure-prominent","high-profile (figure) = prominent","거물급의, 유명한(잘알려진) 인물"],
+["p15-litigation","litigation","소송"],
+["p15-effective","effective","시행되는"],
+["p15-in-the-meantime","in the meantime","그사이"],
+["p15-entry","entry","입력"],
+["p15-respectively","respectively","각각"],
+["p15-certainly","certainly","분명히, 틀림없이"],
+["p15-subsequently","subsequently","다음에"],
+["p15-subsequent","subsequent","그다음"],
+["p15-quote-on","quote on","견적"],
+["p15-representative","representative","직원"],
+["p15-depict","depict","묘사하다"],
+["p15-involvement-engagement","involvement, engagement","참여"],
+["p15-tenure","tenure","임기"],
+["p15-comitted","comitted","열성적인"],
+["p15-preliminary","preliminary","예비의"],
+["p15-area-for-improvement","area for improvement","개선할 분야"],
+["p15-dominate","dominate","~(어떤 장소에서) 가장 두드러지다"],
+["p15-imposing","imposing","위풍당당한"],
+["p15-cast-member","cast member","출연진"],
+["p15-house","house","수용하다"],
+["p15-main-brand","main brand","본점"],
+["p15-subscribing-member","subscribing member","정기회원"],
+["p15-household","household","가정용의"],
+["p15-coordinate-2","coordinate","통솔하다, 편성하다"],
+["p15-a-celebrity-endorsement","a celebrity endorsement","셀럽 광고"],
+["p15-receive-the-full-endorsement","receive the full endorsement","전폭적인 지지를 받다"],
+["p15-adept","adept","능숙한"],
+["p15-lending","lending","대출"],
+["p15-in-transit","in transit","운송중인"],
+["p15-expense","expense","경비"],
+["p15-staffing","staffing","직원채용"],
+["p15-complete","complete","완료된"],
+["p15-require-little-deliberation","require little deliberation","고심할 필요가 없다"],
+["p15-forseeble-future","forseeble future","가까운 미래"],
+["p15-concisely","concisely","간결하게"],
+["p15-figure","figure","~라 판단하다, 계산하다"],
+["p15-prioritize-fixes","prioritize fixes","수정의 우선순위를 정하다"],
+["p15-acquisition","acquisition","인수"],
+["p15-favorable","favorable","유리한, 호의적인"],
+["p15-project-authority","project authority","통솔력을 보여주다"],
+["p15-with-little-disruption","with little disruption","차질없이"],
+["p15-ordinance","ordinance","법령"],
+["p15-please-be-advised-that","Please be advised that~","~임을 알려드립니다. / 참고해 주시기 바랍니다."],
+["p15-municipal","municipal","시의"],
+["p15-arrange-for","arrange for","준비하다"],
+["p15-initiative","initiative","1. 계획, 조치  2. 주도권  3. 진취성"],
+["p15-in-stages","in stages","단계적으로"],
+["p15-not-sure-what-to-expect","not sure what to expect","무엇을 기대할지 알지 못했다"],
+["p15-implementation","implementation","시행"],
+["p15-delegate-a-to-b","delegate A to B","A를 B에게 위임하다"],
+["p15-entrust-a-with-b","entrust A with B","A에게 B를 맡기다"],
+["p15-be-entrusted-with","be entrusted with","~라는 책임을 맡다"],
+["p15-entrust-a-to-b","entrust A to B","A를 B에게 맡기다"],
+["p15-assign-delegate-hand-over","assign, delegate, hand over","위임하다 맡기다"],
+["p15-reliability","reliability","신뢰도"],
+["p15-listed-in","listed in","계획에 명시된"],
+["p15-are-responsible-for-primary-contact","are responsible for / primary contact","주요연락처 / 역할을 담당하다"],
+["p15-fund-raiser","fund-raiser","모금행사"],
+["p15-enthusiastically-approved","enthusiastically approved","적극 승인했다"],
+["p15-grant-applicantion","grant applicantion","보조금 신청"],
+["p15-foreseeable","foreseeable","예측할 수 있는"],
+["p15-unforeseen-factors","unforeseen factors","예기치못한 요소들"],
+["p15-sizable","sizable","상당한 크기의"],
+["p15-calculating","calculating","계산적인"],
+["p15-notify","notify","통지하다"],
+["p15-once-again","once again","다시한번"],
+["p15-career-building-workshop","career-building workshop","경력개발 워크샵"],
+["p15-equalities","equalities","평등"],
+["p15-objective","objective","목적"],
+["p15-amendment","amendment","개정안"],
+["p15-take-over","take over","인계받다(대신하다)"],
+["p15-usually-handle","usually handle","담당하다"],
+["p15-owing-to","owing to","~때문에"],
+["p15-be-sure-to-r","be sure to R","반드시 ~한다"],
+["p15-prosperous-future","(prosperous) future","유망한 미래"],
+["p15-regarding-any-question","(regarding) any question","어떤 질문에 관해서든"],
+["p15-competitive-price","(competitive) price","경쟁력있는 가격"],
+["p15-input-advice","input, advice","조언"],
+["p15-lease","lease","임대차계약"],
+["p15-commitment","commitment","계약"],
+["p15-implement","implement","시행하다"],
+["p15-i-want-to-give-you-a-heads-up","I want to give you a heads-up","알려드릴게 있어요"],
+["p15-litter","litter","쓰레기"],
+["p15-enclosed","enclosed","동봉된"],
+["p15-typically","typically","보통"],
+["p15-overlook","overlook","간과하다"],
+["p15-elapse-x","elapse(자, 수동태x)","시간이 흐르다"],
+["p15-budget-traveler","budget traveler","저예산 여행자"],
+["p15-referring-new-subscribers","referring new subscribers","소개하다"],
+["p15-for-immediate-realease","For immediate realease","긴급보도"],
+["p15-prompt","prompt","(알림창이) 뜨다"],
+["p15-legislature-office","legislature office","입법부"],
+["p15-present-a-funding-request","(present) a funding request","자금지원 신청서를 (제출하다)"],
+["p15-give-a-presentation","(give) a presentation","발표하다"],
+["p15-along-those-line","Along those line,","이러한 맥락에서,"],
+["p15-bond","bond","채권"],
+["p15-annuity","annuity","연금"],
+["p15-should","Should ~  ,","혹시 만약 ~라면,"],
+["p15-savvy-financial-planning","savvy financial planning","노련한(능통한) 재무계획"],
+["p15-touch-base","touch base","대화/협의 하다"],
+["p15-dialed-in","dialed-in","완벽하게 준비된, 완벽하게 조율된"],
+["p15-delegate-a-to-b-2","delegate A to B","A를 B에게 위임하다"],
+["p15-entrust-a-with-b-2","entrust A with B","A에게 B를 맡기다"],
+["p15-be-entrusted-with-2","be entrusted with","~라는 책임을 맡다"],
+["p15-entrust-a-to-b-2","entrust A to B","A를 B에게 맡기다"],
+["p15-assign-delegate-hand-over-2","assign, delegate, hand over","위임하다 맡기다"],
+["p15-nearly","nearly","거의"],
+["p15-lightly","lightly","가볍게"],
+["p15-diligently","diligently","부지런시, 성실하게"],
+["p15-cooperatively","cooperatively","협력하여, 협조적으로"],
+["p15-initially","initially","처음에"],
+["p15-township","township","군, 구"],
+["p15-convince","convince","납득/확신 시키다"],
+["p15-tackle","tackle","씨름하다"],
+["p15-procedure","procedure","절차"],
+["p15-provided-that","provided that","~조건 하에"],
+["p15-pride","pride","자랑하다"],
+["p15-coordination-team","coordination team","합동 팀"],
+["p15-have-a-firm-grasp","have a firm grasp","확고한 기반을 가지고있다"],
+["p15-even-so","even so","그렇다고 하더라도, 그럼에도 불구하고"],
+["p15-correspondence","correspondence","서신, 편지, 메일(주고받은 문서)"],
+["p15-once-we-finalize","once we finalize","~마무리 하는 대로 …"],
+["p15-popularly","popularly","대중적으로"],
+["p15-reponsibly","reponsibly","책임감있게"],
+["p15-understandably","understandably","당연히"],
+["p15-substance","substance","본질, 실체, 물질"],
+["p15-substantiate","substantiate","입증하다"],
+["p15-contender","contender","유력후보"],
+["p15-pending","pending","어떤일이 있을때 까지"],
+["p15-contributor","contributor","기고가"],
+["p15-the-meeting-minutes","the meeting minutes","회의록"],
+["p15-assignments","assignments","업무"],
+["p15-infilct","infilct","(괴로움등을) 가하다"],
+["p15-objectively","objectively","객관적으로"],
+["p15-over","over 기간","동안"],
+["p15-i-should-arrive-around-3","I should arrive around 3","3시쯤 도착할것 같아요"],
+["p15-compatibility","compatibility","호환성"],
+["p15-troubleshot-the-problem","troubleshot the problem","문제를 해결하다"],
+["p15-instruction","instruction","지침"],
+["p15-coordination-speakers","coordination speakers","발표자를 편성하다"],
+["p15-indicate-2","indicate","암시하다"],
+["p15-i-could-really-use","I could really use ~","~가 진짜 필요하다. ~할수 있으면 정말 좋겠다 (간절)"],
+["p15-justify","justify","옳다고 주장하다"],
+["p15-recognize","recognize","표창하다(상을주다)"],
+["p15-entrant","entrant","출품자, 참가자"],
+["p15-entry-2","entry","출품, 참가"],
+["p15-vetting","vetting","조사, 검토"],
+["p15-swirl","swirl","소용돌이"],
+["p15-open-year-around","open year-around","연중무휴"],
+["p15-sanctuary-reserve","sanctuary=reserve","보호구역"],
+["p15-scout","scout","찾아돌아다니다"],
+["p15-depart","depart","떠나다"],
+["p15-reassure","reassure","안심시키다"],
+["p15-among-other-things","Among other things,","무엇보다"],
+];
+
+const WORDS_P67 = [
+["p67-thus","… thus ~","…해서 ~하다"],
+["p67-admantly","admantly","단호하게"],
+["p67-objectionable","objectionable","불쾌한"],
+["p67-embrace","embrace","받아들이다"],
+["p67-variable","variable","변하기쉬운"],
+["p67-probable","probable","있음직한"],
+["p67-companionable","companionable","다정한"],
+["p67-may-visit","may visit","방문 할 수 있다"],
+["p67-favor","favor","선호하다, 애용하다"],
+["p67-specifically","specifically","특별히, 구체적으로"],
+["p67-among","among","(+) 셋 이상 복수명사"],
+["p67-restore","restore","복구하다"],
+["p67-address","address","우편을 보내다, 일을 처리하다"],
+["p67-argue","argue","주장하다"],
+["p67-valuable","valuable","가치있는"],
+["p67-reservoir","reservoir","저수지"],
+["p67-exponentially","exponentially","기하급수적으로"],
+["p67-tremendously","tremendously","급격하게"],
+["p67-purposeful","purposeful","목적이 있는"],
+["p67-respective","respective","각각"],
+["p67-fixture","fixture","붙박이장(같은 구조물)"],
+["p67-eligibly","eligibly","적임으로"],
+["p67-extremely","extremely","극도로"],
+["p67-explicitly","explicitly","명확하게"],
+["p67-owing-to","owing to","~때문에"],
+["p67-apart-from","apart from","~이외에"],
+["p67-expectation","expectation","기대"],
+["p67-persevere","persevere","끈기있게 버티다, 꾸준히 ㅎ하다"],
+["p67-acknowledge","acknowledge","인정하다, 고마움을 표시하다"],
+["p67-distinct","distinct","뚜렷한"],
+["p67-distinctly","distinctly","명확히"],
+["p67-distictive","distictive","독특한"],
+["p67-get-noticed","get noticed","주목받다"],
+["p67-turn-down","turn down","거절하다"],
+["p67-state","state","언급하다"],
+["p67-urge","urge","주장하다"],
+["p67-employer","employer","고용주"],
+["p67-affordable","affordable","저렴한"],
+["p67-vary","vary","다양하다"],
+["p67-bypass","bypass","(절차)건너뛰다, (길)우회하다"],
+["p67-color-scheme","color scheme","색상배합"],
+["p67-on-one-s-way","on one's way","가는중의"],
+["p67-imply","imply","의미하다, 나타내다"],
+["p67-represent","represent","대표하다"],
+["p67-fine-tuning","fine-tuning","미세한 조정중인"],
+["p67-youngster","youngster","청소년"],
+["p67-first-rate","first-rate","최고 수준의"],
+["p67-promise-to","promise to","~할것을 약속하다"],
+["p67-superb","superb","최상의"],
+["p67-lifelike","lifelike","생동감있는"],
+["p67-anticipated","anticipated","예상되는"],
+["p67-operational","operational","가동 준비가 갖춰진"],
+["p67-charitable","charitable","자선의"],
+["p67-surpass","surpass","뛰어넘다"],
+["p67-clerk","clerk","점원, 직원, 사무원"],
+["p67-i-have-other-commitments","I have other commitments","나 다른일이 있어서(약속)"],
+["p67-destination","destination","관광지"],
+["p67-overlook","overlook","간과하다"],
+["p67-sample","sample","맛보다"],
+["p67-dining-establishment","dining establishment","요식 업체"],
+["p67-observe","observe","관찰하다"],
+["p67-call-on","call on","요청하다"],
+["p67-assure","assure","보장하다"],
+["p67-suggest","suggest 명사","제안하다, 암시하다, …라는점을 보여주다"],
+["p67-what-is-suggested-about","what is suggested about …","...에대해 알 수(추론할 수) 있는것은?"],
+["p67-acknowledgement","acknowledgement","승인"],
+["p67-instructions","instructions","지시사항"],
+["p67-full-credit","(full) credit","금액(전액)"],
+["p67-care-for","care for","좋아하다"],
+["p67-real-estate-agents","real estate agents","부동산 중개인"],
+["p67-minister","minister","장관"],
+["p67-applaud","applaud","칭찬하다"],
+["p67-primarily","primarily","주로"],
+["p67-institute","Institute","(교육)기관, 학교"],
+["p67-leasing-office","leasing office","임대 사무소"],
+["p67-oversee","oversee","감독하다"],
+["p67-sales-associate","sales associate","판매사원"],
+["p67-occasionally","occasionally","가끔"],
+["p67-fleet","fleet","함대, 회사차량"],
+["p67-suspect","suspect","미심쩍어하다, 의심하다"],
+["p67-captivating","captivating","매혹적인"],
+["p67-streamlined","streamlined","현대적인"],
+["p67-inviting","inviting","매력적인"],
+["p67-never-expire","never expire","만기가 없다"],
+["p67-highly-regarded","highly regarded","높은 평가를 받다"],
+["p67-locate","locate","찾아내다"],
+["p67-unofficial","unofficial","허가없이"],
+["p67-scrutiny","scrutiny","정밀조사"],
+["p67-purveyor","purveyor","공급업체"],
+["p67-be-justified","be justified","정당하다"],
+["p67-inclaiming","inclaiming","주장하다"],
+["p67-circulate","circulate","유포하다"],
+["p67-procure","procure","(어렵게) 입수하다"],
+["p67-assertion","assertion","주장하다"],
+["p67-entitle","entitle","자걱/권리를 주다"],
+["p67-refer-to","refer to","참고하다"],
+["p67-initiative","initiative","계획"],
+["p67-shareholders-meeting","shareholders' meeting","주주총회"],
+["p67-arrangement","arrangement","계획"],
+["p67-what-should-a-expect-next","What should A expect next?","A가 다음에 예상할 수 있는것은?"],
+["p67-intelligence","intelligence","지능"],
+["p67-lease","lease","임대차계약"],
+["p67-over-the-weekend","Over the weekend","주말에는"],
+["p67-i-will-probably-go","I will probably go ~","~하러 갈거 같아요"],
+["p67-will-you-be-getting-a-party","Will you be getting a party","파티를 열 예정인가요?"],
+["p67-sometime-soon","sometime soon","조만간"],
+["p67-itinerary","itinerary","일정표"],
+["p67-i-thought-you","I thought you~","~인줄 알았어요"],
+["p67-wouldn-t-you-prefer","Wouldn't you prefer","~가 낫지 않으세요?"],
+["p67-file","file","제출하다"],
+["p67-would-you-be-able-to","Would you be able to","~할 수 있을까요?"],
+["p67-im-reaching-out-because","I'm reaching out because~","~로 연락드렸습니다"],
+["p67-superintendent","superintendent","관리소장, 현장총괄"],
+["p67-priviously","Priviously,","기존에는, 전에"]
+];
+
+const WORDS_P5 = [
+["p5-typically","typically (통상적으로)","reliable source of business (안정적인 사업 수입원)"],
+["p5-promptly","promptly","정확히 제시간에"],
+["p5-briefly","briefly","잠시"],
+["p5-an-estimate","an estimate","form 견적"],
+["p5-until-further","until further","notice"],
+["p5-expand","expand","operation nationwide 사업을 확장하다"],
+["p5-requirement","requirement","for the position"],
+["p5-arrange","arrange","an appointment"],
+["p5-customer","customer","loyalty"],
+["p5-competitive","competitive","advantage 경쟁력있는 강점"],
+["p5-inference","inference","추론"],
+["p5-keep","keep","records"],
+["p5-expertise","expertise","전문지식"],
+["p5-meet-the","meet the","deadline"],
+["p5-a-lengthy","a lengthy","negotiation"],
+["p5-reliability","reliability","신뢰성"],
+["p5-primary","primary","예비선거"],
+["p5-patronage","patronage","후원"],
+["p5-take-every-possible","take every possible","precaution : 예방조치"],
+["p5-supervision","supervision","감시, 관리"],
+["p5-grant-a-b","grant A B","A에게 B를 승인하다"],
+["p5-relieved","relieved","안도하는"],
+["p5-designate","designate","지정하다"],
+["p5-billboards","billboards","옥외광고판"],
+["p5-specify","specify","명시하다"],
+["p5-request-a-should-r","request A (should) R","A가~할것/해줄것을 요청하다"],
+["p5-transition-to","transition to","v. ~로 전환하다"],
+["p5-personally","personally","직접"],
+["p5-sizable","sizable","상당한(규모의)"],
+["p5-provided-that","Provided that","만약 ~ 라면"],
+["p5-altogether","Altogether","전체적으로 보아"],
+["p5-eject","eject","쫓아내다"],
+["p5-settle","settle","해결하다"],
+["p5-suspect","suspect","의심하다, 용의자"],
+["p5-respective","respective","각각의"],
+["p5-perposeful","perposeful","목적이 있는"],
+["p5-eligibly","eligibly","적임으로"],
+["p5-explicitly","explicitly","명쾌하게"],
+["p5-persever","persever","꾸준히 하다, 끈기있게 버티다"],
+["p5-distinct-distinctive","distinct / distinctive","뚜렸한 / 독특한"],
+["p5-variable","variable","변수, 변동이있는"],
+["p5-probable","probable","있음직한"],
+["p5-companionable","companionable","다정한"],
+["p5-township","township","군, 구"],
+["p5-substantiate","substantiate","입증하다"],
+["p5-substance","substance","본질, 물질"],
+["p5-contenders","contenders","유력후보, 우승후보"],
+["p5-understandably","understandably","당연히 (+감정 표현 : 충분히 이해할만하게 ~한)"],
+["p5-pending","pending ~","~ 까지"],
+["p5-contributor","contributor","기고가"],
+["p5-director","director","임원"],
+["p5-objectively","objectively","객관적으로"],
+["p5-the-legal-department","the legal department","법무부"],
+["p5-acquisition","acquisition","인수"]
+];
+
+
+const WORDS_COLLOCATION = [
+["coll-be-contingent-on","be contingent on","~에 달린, ~을 조건으로 하다"],
+["coll-in-appreciation-for","In appreciation for","~에 감사하며"],
+["coll-upon-receipt-of-the-parcel","upon receipt of the parcel","소포를 받는 즉시"],
+["coll-remainder-of","remainder of","the year 올해 남은 기한"],
+["coll-rental-agreement","rental agreement","임대계약서"],
+["coll-rise-through-the-rank","rise through the rank","승진하다"],
+["coll-business-school","business school","경영대학원"],
+["coll-expedited-delivery","expedited delivery","신속배달"],
+["coll-a-tentative-schedule","a tentative schedule","임시스케쥴"],
+["coll-sales-associates","sales associates","판매사원"],
+["coll-corporate-expenditure","corporate expenditure","법인지출"],
+["coll-be-included-with","be included with","~에 포함되다"],
+["coll-contrant-was-awarded","contrant was awarded","계약이 체결되었다"],
+["coll-apart-from","apart from","~을 제외하고"],
+["coll-date-from","date from","~로부터 시작되다"],
+["coll-give-away","give away","경품으로 주다, 누설하다"],
+["coll-be-concerned-about","be concerned about","우려하고 있다"],
+["coll-be-opposed-to","be opposed to","~에 반대하다"],
+["coll-a-firm-grasp","a firm grasp","확고한 기반"],
+["coll-given-that","Given that","~을 고려하면"],
+["coll-meeting-minutes","meeting minutes","회의록"],
+["coll-listed-in","listed in","계획에 명시된"],
+["coll-be-responsible-for","be responsible for","~역할을 담당하다"],
+["coll-shortly-afterward","shortly afterward","얼마 지나지 않아"],
+["coll-be-subject-to","be subject to","~의 대상이다"],
+["coll-standard-procedure","standard procedure","표준절차"],
+["coll-make-an-inquiry","make an inquiry","문의하다"],
+["coll-time-sheet","time sheet","근무시간 기록표"],
+["coll-most-widely-anticipated-book","most widely anticipated book","가장 기대되는 책"],
+["coll-be-opposed-to-2","be opposed to","반대하다"],
+["coll-contract-was-awarded-to","contract was awarded to ~","계약이 주어졌다"],
+["coll-be-made-up-of","be made up of","~로 이루어져 있다"],
+["coll-extensive-experience","extensive experience","폭넓은 경험"],
+["coll-human-resource-directors","human resource directors","인사 담당자"],
+["coll-discouage-assumption","discouage assumption","억측을 막다"],
+["coll-be-presented-on","be presented on","~로"],
+["coll-booked-to-capacity","booked to capacity","만석이다"],
+["coll-take-advantage-of","take advantage of","~을 이용 활용하다"],
+["coll-represent-a-departure-from-our-previous-projects","represent a departure from our previous projects","이전 프로젝트로부터의 탈피를 의미한다"],
+["coll-common-rooms","common rooms","휴게실"],
+["coll-fellow-residents","fellow residents","주민"],
+["coll-be-joined-by","be joined by","~와 함께합니다"],
+["coll-brake-is-engaged","brake is engaged","브레이크가 걸려있다"],
+["coll-be-commited-to","be commited to","~에 전념하다"],
+["coll-call-into-question","call into question","의문을 제기하다"],
+["coll-chief-executive-officer","Chief executive officer","최고경영자"],
+["coll-facilitate-workshop","facilitate workshop","워크숍을 진행하다(가능하게하다)"],
+["coll-corporate-expenditures","corporate expenditures","법인 지출"],
+["coll-reach-an-agreement","reach an agreement","합의에 도달하다"],
+["coll-be-asked-to","be asked to","~라는 요청을 받았다"],
+["coll-on-the-radar","on the radar","사람들의 관심을 끄는"],
+["coll-specialize-in","specialize in","~을 전문으로 하다"],
+["coll-hit-the-shelves-on","hit the shelves on","출시하다"],
+["coll-following-recommendations","following recommendations","추천에 따라"],
+["coll-accept-the-invitation","accept the invitation","초대를 수락하다"],
+["coll-press-release","press release","보도자료"],
+["coll-quarterly-quota","quarterly quota","분기별 할당량"],
+["coll-sales-figure","sales figure","매출액"],
+["coll-leave-for","leave for","~를 향해 출발하다"]
+];
+
+const WORDS_GRAMMER = [
+["gram-among","among","(셋이상) 복수N"],
+["gram-much","much","불가산n"],
+["gram-all","all","불가산n / 복수n"],
+["gram-anyone-who","anyone who (누구나)","단수V"],
+["gram-those-who","those who (사람들)","복수V"]
+];
+
+const DECKS = {
+  par7:  { title: "토익 Part7 빈출 어휘", words: WORDS_PAR7 },
+  p15:   { title: "실전1-5",             words: WORDS_P15 },
+  p67:   { title: "실전6-7",             words: WORDS_P67 },
+  p5:    { title: "Part5",               words: WORDS_P5 },
+  coll:  { title: "Collocation",         words: WORDS_COLLOCATION },
+  gram:  { title: "Grammer",             words: WORDS_GRAMMER }
+};
+
+let currentDeck = 'par7';
+let byId = {};
+function rebuildIndex(){
+  byId = {};
+  DECKS[currentDeck].words.forEach(w => byId[w[0]] = w);
+}
+
+/* ---------------- Storage ---------------- */
+let wrongIdsMap = { par7: [], p15: [], p67: [], p5: [], coll: [], gram: [] };
+
+function storageKey(deckId){ return 'wrong_word_ids_' + deckId; }
+
+async function loadWrongIds(){
+  for(const deckId of Object.keys(DECKS)){
+    try{
+      const res = await window.storage.get(storageKey(deckId), false);
+      wrongIdsMap[deckId] = (res && res.value) ? JSON.parse(res.value) : [];
+    }catch(e){
+      wrongIdsMap[deckId] = [];
+    }
+  }
+}
+async function saveWrongIds(deckId){
+  try{
+    await window.storage.set(storageKey(deckId), JSON.stringify(wrongIdsMap[deckId]), false);
+  }catch(e){ /* ignore */ }
+}
+async function addWrong(id, deckId){
+  deckId = deckId || currentDeck;
+  const list = wrongIdsMap[deckId];
+  if(!list.includes(id)){
+    list.push(id);
+    await saveWrongIds(deckId);
+    renderBadge();
+  }
+}
+async function removeWrong(id, deckId){
+  deckId = deckId || currentDeck;
+  const list = wrongIdsMap[deckId];
+  const idx = list.indexOf(id);
+  if(idx > -1){
+    list.splice(idx,1);
+    await saveWrongIds(deckId);
+    renderBadge();
+    if(currentTab === 'wb') renderWordbook();
+  }
+}
+function renderBadge(){
+  const count = wrongIdsMap[currentDeck].length;
+  const badge = document.getElementById('wb-badge');
+  badge.textContent = count;
+  badge.className = 'badge' + (count === 0 ? ' zero' : '');
+  renderDeckRow();
+}
+
+/* ---------------- Quiz progress (resume where you left off) ---------------- */
+let progressMap = {};
+function progressKey(deckId){ return 'quiz_progress_' + deckId; }
+
+async function loadProgress(){
+  for(const deckId of Object.keys(DECKS)){
+    try{
+      const res = await window.storage.get(progressKey(deckId), false);
+      progressMap[deckId] = (res && res.value) ? JSON.parse(res.value) : null;
+    }catch(e){
+      progressMap[deckId] = null;
+    }
+  }
+}
+async function saveProgress(deckId){
+  try{
+    if(progressMap[deckId]){
+      await window.storage.set(progressKey(deckId), JSON.stringify(progressMap[deckId]), false);
+    }
+  }catch(e){ /* ignore */ }
+}
+async function clearProgress(deckId){
+  progressMap[deckId] = null;
+  try{
+    await window.storage.delete(progressKey(deckId), false);
+  }catch(e){ /* ignore - key may not exist */ }
+}
+
+/* ---------------- Deck selector ---------------- */
+function renderDeckRow(){
+  const el = document.getElementById('deck-row');
+  el.innerHTML = Object.keys(DECKS).map(id => {
+    const d = DECKS[id];
+    const wrongCount = wrongIdsMap[id] ? wrongIdsMap[id].length : 0;
+    const active = id === currentDeck ? ' active' : '';
+    return `
+      <div class="deck-card${active}" onclick="selectDeck('${id}')">
+        <div class="deck-name">${escapeHtml(d.title)}</div>
+        <div class="deck-meta">단어 ${d.words.length}개${wrongCount > 0 ? ' · 틀린 단어 ' + wrongCount + '개' : ''}</div>
+      </div>`;
+  }).join('');
+}
+
+function selectDeck(id){
+  if(id === currentDeck) return;
+  currentDeck = id;
+  rebuildIndex();
+  document.getElementById('deck-title').textContent = DECKS[id].title;
+  document.getElementById('subtitle').textContent = `총 ${DECKS[id].words.length}개 단어 · 4지선다 시험지`;
+  renderDeckRow();
+  renderBadge();
+  if(currentTab === 'wb'){
+    renderWordbook();
+  } else {
+    buildAndRender();
+  }
+}
+
+/* ---------------- Tabs ---------------- */
+let currentTab = 'quiz';
+function switchTab(t){
+  currentTab = t;
+  document.getElementById('tab-quiz').classList.toggle('active', t==='quiz');
+  document.getElementById('tab-mix').classList.toggle('active', t==='mix');
+  document.getElementById('tab-wb').classList.toggle('active', t==='wb');
+  document.getElementById('tab-score').classList.toggle('active', t==='score');
+  document.getElementById('quiz-view').style.display = t==='quiz' ? 'block' : 'none';
+  document.getElementById('mix-view').style.display = t==='mix' ? 'block' : 'none';
+  document.getElementById('wb-view').style.display = t==='wb' ? 'block' : 'none';
+  document.getElementById('score-view').style.display = t==='score' ? 'block' : 'none';
+  if(t==='wb') renderWordbook();
+  if(t==='mix') buildAndRenderMix();
+  if(t==='score') renderScoreLog();
+}
+
+/* ---------------- Wordbook view ---------------- */
+function renderWordbook(){
+  const el = document.getElementById('wb-view');
+  if(wrongIds.length === 0){
+    el.innerHTML = `<div class="wb-empty"><span class="emoji">🌱</span>아직 틀린 단어가 없어요.<br>시험지를 풀어보세요!</div>`;
+    return;
+  }
+  let html = '<div class="wb-list">';
+  wrongIds.forEach(id => {
+    const w = byId[id];
+    if(!w) return;
+    html += `
+      <div class="wb-row">
+        <div class="wb-text">
+          <div class="wb-en">${escapeHtml(w[1])}</div>
+          <div class="wb-kr">${escapeHtml(w[2])}</div>
+        </div>
+        <button class="wb-remove" onclick="removeWrong('${id}')">외웠어 ✓</button>
+      </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ---------------- Quiz engine ---------------- */
+let quiz = []; // array of {word, type, options, correctIndex}
+let qIndex = 0;
+let correctCount = 0;
+let answeredCurrent = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let isFullQuiz = true;
+
+function makeQuizItem(w, type, allWords){
+  let correctVal, distractors;
+  if(type === 'seq'){
+    correctVal = w[2];
+    distractors = shuffle(allWords.filter(x => x[0] !== w[0]))
+      .slice(0, 3)
+      .map(x => x[2]);
+  } else {
+    correctVal = type === 'e2k' ? w[2] : w[1];
+    distractors = shuffle(allWords.filter(x => x[0] !== w[0]))
+      .slice(0, 3)
+      .map(x => type === 'e2k' ? x[2] : x[1]);
+  }
+  const options = shuffle([correctVal, ...distractors]);
+  return { word: w, type, options, correctVal };
+}
+
+function makeTypesFor(order, quizType){
+  if(quizType === 'pair'){
+    return Array(order.length).fill('seq');
+  }
+  // Always show the English word/phrase and ask for its Korean meaning.
+  return Array(order.length).fill('e2k');
+}
+
+function buildQuiz(size, forceNew){
+  const allWords = DECKS[currentDeck].words;
+  const quizType = DECKS[currentDeck].quizType || 'trans';
+  if(allWords.length < 4){
+    quiz = [];
+    qIndex = 0;
+    correctCount = 0;
+    return;
+  }
+
+  if(size){
+    // Random subset (e.g. "랜덤 10문제") — always fresh, never saved/resumed.
+    isFullQuiz = false;
+    const words = shuffle(allWords).slice(0, Math.min(size, allWords.length));
+    const order = shuffle(words);
+    const types = makeTypesFor(order, quizType);
+    quiz = order.map((w, i) => makeQuizItem(w, types[i], words));
+    qIndex = 0;
+    correctCount = 0;
+    answeredCurrent = false;
+    return;
+  }
+
+  // Full-deck quiz — resumable.
+  isFullQuiz = true;
+  const saved = !forceNew ? progressMap[currentDeck] : null;
+  const savedValid = saved && Array.isArray(saved.order)
+    && saved.order.length === allWords.length
+    && saved.order.every(([id]) => !!byId[id]);
+
+  if(savedValid){
+    quiz = saved.order.map(([id, type]) => makeQuizItem(byId[id], type, allWords));
+    qIndex = Math.min(saved.index, quiz.length);
+    correctCount = saved.correct || 0;
+  } else {
+    const order = shuffle(allWords);
+    const types = makeTypesFor(order, quizType);
+    quiz = order.map((w, i) => makeQuizItem(w, types[i], allWords));
+    qIndex = 0;
+    correctCount = 0;
+    progressMap[currentDeck] = { order: quiz.map(q => [q.word[0], q.type]), index: 0, correct: 0 };
+    saveProgress(currentDeck);
+  }
+  answeredCurrent = false;
+}
+
+function renderQuiz(){
+  const el = document.getElementById('quiz-view');
+  if(DECKS[currentDeck].words.length < 4){
+    el.innerHTML = `
+      <div class="card">
+        <div class="holes"><span></span><span></span><span></span></div>
+        <div class="summary">
+          <p>🌱</p>
+          <p>이 단어장에는 아직 단어가 없어요.<br>단어 사진을 올려주시면 시험지를 만들어 드릴게요.</p>
+        </div>
+      </div>`;
+    return;
+  }
+  if(qIndex >= quiz.length){
+    renderSummary();
+    return;
+  }
+  const q = quiz[qIndex];
+  answeredCurrent = false;
+  const pct = Math.round((qIndex / quiz.length) * 100);
+
+  let optsHtml = q.options.map(opt => {
+    const safe = opt.replace(/'/g, "\\'");
+    return `<button class="choice" onclick="answer(this, '${escapeAttr(opt)}')">${escapeHtml(opt)}</button>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="holes"><span></span><span></span><span></span></div>
+      <div class="progress-row">
+        <span>${qIndex + 1} / ${quiz.length} 문제${(isFullQuiz && qIndex > 0) ? ' · 이어서 풀기' : ''}</span>
+        <span>정답 ${correctCount}개</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="q-type ${q.type === 'k2e' ? 'rev' : ''}">${q.type === 'seq' ? '다음 단어는?' : (q.type === 'e2k' ? 'ENGLISH → 한국어' : '한국어 → ENGLISH')}</div>
+      <div class="q-word">${escapeHtml(q.type === 'k2e' ? q.word[2] : q.word[1])}</div>
+      <div class="choices">${optsHtml}</div>
+      <div class="foot-row">
+        <button class="btn btn-ghost" onclick="buildAndRender(undefined, true)">🔀 새 시험지</button>
+        <button class="btn btn-ghost" onclick="buildAndRender(20)">🎲 랜덤 20문제</button>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>다음 →</button>
+      </div>
+    </div>
+  `;
+}
+
+function escapeAttr(s){
+  return s.replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function answer(btnEl, value){
+  if(answeredCurrent) return;
+  answeredCurrent = true;
+  const q = quiz[qIndex];
+  const isCorrect = value === q.correctVal;
+  const buttons = document.querySelectorAll('#quiz-view .choice');
+  buttons.forEach(b => {
+    b.disabled = true;
+    const raw = b.textContent;
+    if(raw === q.correctVal){
+      b.classList.add('correct');
+    } else if(b === btnEl && !isCorrect){
+      b.classList.add('wrong');
+    }
+  });
+  document.getElementById('next-btn').disabled = false;
+
+  if(isCorrect){
+    correctCount++;
+    await removeWrong(q.word[0]);
+    const qIndexAtAnswer = qIndex;
+    setTimeout(() => {
+      if(qIndex === qIndexAtAnswer){
+        nextQuestion();
+      }
+    }, 500);
+  } else {
+    await addWrong(q.word[0]);
+  }
+}
+
+function nextQuestion(){
+  qIndex++;
+  if(isFullQuiz){
+    if(qIndex < quiz.length){
+      progressMap[currentDeck] = { order: quiz.map(q => [q.word[0], q.type]), index: qIndex, correct: correctCount };
+      saveProgress(currentDeck);
+    } else {
+      clearProgress(currentDeck);
+    }
+  }
+  renderQuiz();
+}
+
+function renderSummary(){
+  const el = document.getElementById('quiz-view');
+  const pct = quiz.length ? Math.round((correctCount / quiz.length) * 100) : 0;
+  el.innerHTML = `
+    <div class="card">
+      <div class="holes"><span></span><span></span><span></span></div>
+      <div class="summary">
+        <p>시험지 완료!</p>
+        <div class="score">${correctCount} / ${quiz.length}</div>
+        <p>정답률 ${pct}% · 틀린 단어는 자동으로 [오답노트]에 저장됐어요</p>
+      </div>
+      <div class="foot-row" style="justify-content:center;">
+        <button class="btn btn-ghost" onclick="buildAndRender(20)">🎲 랜덤 20문제</button>
+        <button class="btn btn-primary" onclick="buildAndRender(undefined, true)">🔀 새 시험지(랜덤)</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildAndRender(size, forceNew){
+  buildQuiz(size, forceNew);
+  renderQuiz();
+}
+
+/* ---------------- Mixed pop-quiz (all decks combined) ---------------- */
+const MIX_SIZE = 20;
+let mixQuiz = [];
+let mixIndex = 0;
+let mixCorrect = 0;
+let mixAnswered = false;
+
+function getAllWords(){
+  let combined = [];
+  Object.keys(DECKS).forEach(deckId => {
+    const quizType = DECKS[deckId].quizType || 'trans';
+    DECKS[deckId].words.forEach(w => {
+      combined.push({ id: w[0], en: w[1], kr: w[2], deckId, deckTitle: DECKS[deckId].title, quizType });
+    });
+  });
+  return combined;
+}
+
+function buildMixQuiz(){
+  const pool = getAllWords();
+  if(pool.length === 0){
+    mixQuiz = [];
+    mixIndex = 0; mixCorrect = 0;
+    return;
+  }
+  const count = Math.min(MIX_SIZE, pool.length);
+  const picked = shuffle(pool).slice(0, count);
+
+  mixQuiz = picked.map((w) => {
+    // Pair-type decks (collocation "next word" quizzes) ask the sequence question;
+    // every other deck always shows English and asks for the Korean meaning.
+    const type = w.quizType === 'pair' ? 'seq' : 'e2k';
+    const correctVal = type === 'seq' ? w.kr : w.kr; // 'seq': w.kr holds the paired next word/phrase
+    // Distractors always come from the SAME deck as the question word, never mixed across decks.
+    const sameDeck = pool.filter(x => x.deckId === w.deckId && x.id !== w.id);
+    const distractorPool = type === 'seq'
+      ? sameDeck.filter(x => x.quizType === 'pair')
+      : sameDeck;
+    let distractors = shuffle(distractorPool).slice(0, 3).map(x => x.kr);
+    const options = shuffle([correctVal, ...distractors]);
+    return { word: w, type, options, correctVal };
+  });
+  mixIndex = 0;
+  mixCorrect = 0;
+  mixAnswered = false;
+}
+
+function renderMixQuiz(){
+  const el = document.getElementById('mix-view');
+  const pool = getAllWords();
+  if(pool.length === 0){
+    el.innerHTML = `
+      <div class="card">
+        <div class="holes"><span></span><span></span><span></span></div>
+        <div class="summary">
+          <p>🌱</p>
+          <p>단어장에 단어가 없어요.<br>단어를 먼저 추가해주세요.</p>
+        </div>
+      </div>`;
+    return;
+  }
+  if(mixIndex >= mixQuiz.length){
+    renderMixSummary();
+    return;
+  }
+  const q = mixQuiz[mixIndex];
+  mixAnswered = false;
+  const pct = Math.round((mixIndex / mixQuiz.length) * 100);
+
+  let optsHtml = q.options.map(opt =>
+    `<button class="choice" onclick="answerMix(this, '${escapeAttr(opt)}')">${escapeHtml(opt)}</button>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="holes"><span></span><span></span><span></span></div>
+      <div class="progress-row">
+        <span>${mixIndex + 1} / ${mixQuiz.length} 문제</span>
+        <span>정답 ${mixCorrect}개</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="q-type ${q.type === 'k2e' ? 'rev' : ''}">${q.type === 'seq' ? '다음 단어는?' : (q.type === 'e2k' ? 'ENGLISH → 한국어' : '한국어 → ENGLISH')} · ${escapeHtml(q.word.deckTitle)}</div>
+      <div class="q-word">${escapeHtml(q.type === 'k2e' ? q.word.kr : q.word.en)}</div>
+      <div class="choices">${optsHtml}</div>
+      <div class="foot-row">
+        <button class="btn btn-ghost" onclick="buildAndRenderMix()">🔀 새 쪽지시험</button>
+        <button class="btn btn-primary" id="mix-next-btn" onclick="nextMixQuestion()" disabled>다음 →</button>
+      </div>
+    </div>
+  `;
+}
+
+async function answerMix(btnEl, value){
+  if(mixAnswered) return;
+  mixAnswered = true;
+  const q = mixQuiz[mixIndex];
+  const isCorrect = value === q.correctVal;
+  const buttons = document.querySelectorAll('#mix-view .choice');
+  buttons.forEach(b => {
+    b.disabled = true;
+    const raw = b.textContent;
+    if(raw === q.correctVal){
+      b.classList.add('correct');
+    } else if(b === btnEl && !isCorrect){
+      b.classList.add('wrong');
+    }
+  });
+  document.getElementById('mix-next-btn').disabled = false;
+
+  if(isCorrect){
+    mixCorrect++;
+    await removeWrong(q.word.id, q.word.deckId);
+    const mixIndexAtAnswer = mixIndex;
+    setTimeout(() => {
+      if(mixIndex === mixIndexAtAnswer){
+        nextMixQuestion();
+      }
+    }, 500);
+  } else {
+    await addWrong(q.word.id, q.word.deckId);
+  }
+}
+
+function nextMixQuestion(){
+  mixIndex++;
+  renderMixQuiz();
+}
+
+function renderMixSummary(){
+  const el = document.getElementById('mix-view');
+  const pct = mixQuiz.length ? Math.round((mixCorrect / mixQuiz.length) * 100) : 0;
+  el.innerHTML = `
+    <div class="card">
+      <div class="holes"><span></span><span></span><span></span></div>
+      <div class="summary">
+        <p>쪽지시험 완료!</p>
+        <div class="score">${mixCorrect} / ${mixQuiz.length}</div>
+        <p>정답률 ${pct}% · 모든 단어장에서 무작위로 출제됐어요</p>
+      </div>
+      <div class="foot-row" style="justify-content:center;">
+        <button class="btn btn-primary" onclick="buildAndRenderMix()">🔀 새 쪽지시험</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildAndRenderMix(){
+  buildMixQuiz();
+  renderMixQuiz();
+}
+
+/* ---------------- Init ---------------- */
+/* ---------------- TOEIC score log ---------------- */
+const SCORE_BUCKETS = [
+  [96,100,"475-495","460-495"],
+  [91,95,"435-495","425-490"],
+  [86,90,"405-470","400-465"],
+  [81,85,"370-450","375-440"],
+  [76,80,"345-420","340-415"],
+  [71,75,"320-390","310-390"],
+  [66,70,"290-360","285-370"],
+  [61,65,"265-335","255-340"],
+  [56,60,"240-310","230-310"],
+  [51,55,"215-280","200-275"],
+  [46,50,"190-255","170-245"],
+  [41,45,"160-230","140-215"],
+  [36,40,"130-205","115-180"],
+  [31,35,"105-175","95-150"],
+  [26,30,"85-145","75-120"],
+  [21,25,"60-115","60-95"],
+  [16,20,"30-90","45-75"],
+  [11,15,"5-70","30-55"],
+  [6,10,"5-60","10-40"],
+  [1,5,"5-50","5-30"],
+  [0,0,"5-35","5-15"]
+];
+function scaledRange(raw, part){
+  if(raw === '' || raw === null || raw === undefined) return '';
+  const n = Number(raw);
+  if(isNaN(n)) return '';
+  for(const [min, max, l, r] of SCORE_BUCKETS){
+    if(n >= min && n <= max) return part === 'L' ? l : r;
+  }
+  return '';
+}
+function midpoint(rangeStr){
+  if(!rangeStr) return null;
+  const parts = rangeStr.split('-').map(Number);
+  if(parts.length !== 2 || parts.some(isNaN)) return null;
+  return (parts[0] + parts[1]) / 2;
+}
+
+const DEFAULT_SCORE_LOG = [
+  { round: "실전1",  lc: 100, rd: 86,  note: "" },
+  { round: "실전2",  lc: null, rd: 91, note: "" },
+  { round: "실전3",  lc: null, rd: 85, note: "" },
+  { round: "실전4",  lc: null, rd: 87, note: "" },
+  { round: "실전5",  lc: null, rd: 90, note: "" },
+  { round: "실전6",  lc: null, rd: 87, note: "" },
+  { round: "실전7",  lc: null, rd: null, note: "앞에 3개 다 맞히기 !!!" },
+  { round: "실전8",  lc: null, rd: 90, note: "좀 더 세부적인 부분을 정확하게 해석하는 능력이 필요할듯" },
+  { round: "실전9",  lc: null, rd: null, note: "오늘 part5 고득점 보기" },
+  { round: "실전10", lc: null, rd: null, note: "" }
+];
+
+let scoreLog = null;
+
+async function loadScoreLog(){
+  try{
+    const res = await window.storage.get('toeic_score_log', false);
+    scoreLog = (res && res.value) ? JSON.parse(res.value) : DEFAULT_SCORE_LOG.slice();
+  }catch(e){
+    scoreLog = DEFAULT_SCORE_LOG.slice();
+  }
+}
+async function saveScoreLog(){
+  try{
+    await window.storage.set('toeic_score_log', JSON.stringify(scoreLog), false);
+  }catch(e){ /* ignore */ }
+}
+
+function updateScoreField(idx, field, value){
+  if(!scoreLog[idx]) return;
+  if(field === 'lc' || field === 'rd'){
+    scoreLog[idx][field] = value === '' ? null : Number(value);
+  } else {
+    scoreLog[idx][field] = value;
+  }
+  saveScoreLog();
+  // Only re-render the affected card's computed bits, not the whole list (keeps focus while typing).
+  const card = document.querySelector(`.score-card[data-idx="${idx}"]`);
+  if(card){
+    const entry = scoreLog[idx];
+    const lcScaled = scaledRange(entry.lc, 'L');
+    const rdScaled = scaledRange(entry.rd, 'R');
+    const lcEl = card.querySelector('.score-lc-scaled');
+    const rdEl = card.querySelector('.score-rd-scaled');
+    if(lcEl) lcEl.textContent = lcScaled ? `환산 ${lcScaled}` : '';
+    if(rdEl) rdEl.textContent = rdScaled ? `환산 ${rdScaled}` : '';
+    const totalEl = card.querySelector('.score-total');
+    if(totalEl) totalEl.textContent = totalLabel(lcScaled, rdScaled);
+  }
+}
+
+function totalLabel(lcScaled, rdScaled){
+  const lm = midpoint(lcScaled);
+  const rm = midpoint(rdScaled);
+  if(lm === null || rm === null) return '예상 총점: LC/RD 원점수를 모두 입력하면 계산돼요';
+  const total = Math.round((lm + rm) / 5) * 5;
+  return `예상 총점(중간값 기준) 약 ${total}점 (LC ${lcScaled} + RD ${rdScaled})`;
+}
+
+function addScoreRound(){
+  const n = scoreLog.length + 1;
+  scoreLog.push({ round: `실전${n}`, lc: null, rd: null, note: "" });
+  saveScoreLog();
+  renderScoreLog();
+}
+function removeScoreRound(idx){
+  scoreLog.splice(idx, 1);
+  saveScoreLog();
+  renderScoreLog();
+}
+
+function renderScoreLog(){
+  const el = document.getElementById('score-view');
+  if(!scoreLog){
+    el.innerHTML = '<div class="loading">불러오는 중...</div>';
+    return;
+  }
+  let html = '<div class="score-list">';
+  scoreLog.forEach((entry, idx) => {
+    const lcScaled = scaledRange(entry.lc, 'L');
+    const rdScaled = scaledRange(entry.rd, 'R');
+    html += `
+      <div class="score-card" data-idx="${idx}">
+        <div class="score-card-head">
+          <input class="score-round-name" value="${escapeAttr(entry.round)}" onchange="updateScoreField(${idx}, 'round', this.value)">
+          <button class="score-del" onclick="removeScoreRound(${idx})">삭제</button>
+        </div>
+        <div class="score-grid">
+          <div class="score-field">
+            <label>LC 원점수 (0-100)</label>
+            <input type="number" min="0" max="100" value="${entry.lc ?? ''}" onchange="updateScoreField(${idx}, 'lc', this.value)">
+            <div class="score-scaled score-lc-scaled">${lcScaled ? '환산 ' + lcScaled : ''}</div>
+          </div>
+          <div class="score-field">
+            <label>RD 원점수 (0-100)</label>
+            <input type="number" min="0" max="100" value="${entry.rd ?? ''}" onchange="updateScoreField(${idx}, 'rd', this.value)">
+            <div class="score-scaled score-rd-scaled">${rdScaled ? '환산 ' + rdScaled : ''}</div>
+          </div>
+        </div>
+        <div class="score-total">${totalLabel(lcScaled, rdScaled)}</div>
+        <textarea class="score-note" placeholder="메모 (예: 헷갈렸던 파트, 다음에 신경 쓸 점)" onchange="updateScoreField(${idx}, 'note', this.value)">${escapeHtml(entry.note || '')}</textarea>
+      </div>`;
+  });
+  html += '</div><button class="score-add-btn" onclick="addScoreRound()">+ 새 회차 추가</button>';
+  el.innerHTML = html;
+}
+
+async function init(){
+  document.getElementById('quiz-view').innerHTML = '<div class="loading">단어장을 불러오는 중...</div>';
+  rebuildIndex();
+  await loadWrongIds();
+  await loadProgress();
+  await loadScoreLog();
+  renderDeckRow();
+  renderBadge();
+  buildAndRender();
+}
+init();
+</script>
+</body>
+</html>
