@@ -1093,7 +1093,7 @@ async function removeWrong(id, deckId){
   }
 }
 function renderBadge(){
-  const count = wrongIdsMap[currentDeck].length;
+  const count = Object.keys(wrongIdsMap).reduce((n, k) => n + wrongIdsMap[k].length, 0);
   const badge = document.getElementById('wb-badge');
   badge.textContent = count;
   badge.className = 'badge' + (count === 0 ? ' zero' : '');
@@ -1177,24 +1177,30 @@ function switchTab(t){
 /* ---------------- Wordbook view ---------------- */
 function renderWordbook(){
   const el = document.getElementById('wb-view');
-  if(wrongIds.length === 0){
-    el.innerHTML = `<div class="wb-empty"><span class="emoji">🌱</span>아직 틀린 단어가 없어요.<br>시험지를 풀어보세요!</div>`;
-    return;
-  }
-  let html = '<div class="wb-list">';
-  wrongIds.forEach(id => {
-    const w = byId[id];
-    if(!w) return;
-    html += `
+  let total = 0, html = '';
+  Object.keys(DECKS).forEach(deckId => {
+    const byDeck = {};
+    DECKS[deckId].words.forEach(w => byDeck[w[0]] = w);
+    const items = (wrongIdsMap[deckId] || []).map(id => byDeck[id]).filter(Boolean);
+    if(!items.length) return;
+    total += items.length;
+    html += `<div class="deck-label">${escapeHtml(DECKS[deckId].title)} · ${items.length}개</div><div class="wb-list">`;
+    items.forEach(w => {
+      html += `
       <div class="wb-row">
         <div class="wb-text">
           <div class="wb-en">${escapeHtml(w[1])}</div>
           <div class="wb-kr">${escapeHtml(w[2])}</div>
         </div>
-        <button class="wb-remove" onclick="removeWrong('${id}')">외웠어 ✓</button>
+        <button class="wb-remove" onclick="removeWrong('${w[0]}', '${deckId}')">외웠어 ✓</button>
       </div>`;
+    });
+    html += '</div>';
   });
-  html += '</div>';
+  if(total === 0){
+    el.innerHTML = `<div class="wb-empty"><span class="emoji">🌱</span>아직 틀린 단어가 없어요.<br>시험지를 풀어보세요!</div>`;
+    return;
+  }
   el.innerHTML = html;
 }
 
@@ -1735,5 +1741,6 @@ async function init(){
 }
 init();
 </script>
+
 </body>
 </html>
