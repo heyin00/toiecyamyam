@@ -456,8 +456,8 @@
   </div>
 
   <div class="dir-wrap">
-    <button class="dir-btn" id="dir-k2e" onclick="setDir('k2e')">뜻 보고 영어 고르기</button>
     <button class="dir-btn" id="dir-e2k" onclick="setDir('e2k')">영어 보고 뜻 고르기</button>
+    <button class="dir-btn" id="dir-k2e" onclick="setDir('k2e')">뜻 보고 영어 고르기</button>
   </div>
 
   <div class="tabs">
@@ -1036,11 +1036,34 @@ const WORDS_GRAMMER = [
 ["gram-those-who","those who (사람들)","복수V"]
 ];
 
+const WORDS_LC = [
+["lc-how-long-will-the-meeting-be","How long will the meeting be ?","회의가 얼마나 걸릴까요?"],
+["lc-i-could-do-with-a-break","I could do with a break.","잠깐 쉬어야겠어~"],
+["lc-i-d-be-happy-to-lend-the-hand","I'd be happy to lend the hand.","기꺼이 도와드리겠습니다."],
+["lc-yes-i-belive-so","Yes, I belive so.","네 그런것 같아요"],
+["lc-swap-with","swap with","~와 순서를 바꾸다, 교환하다"],
+["lc-celcbration","celcbration","기념행사"],
+["lc-what-did-you-think-of","What did you think of ~","~에대해 어떻게 생각하셨어요?"],
+["lc-could-you-look-at","Could you look at ~ ?","~좀 확인해보시겠어요?"],
+["lc-check-with","check with ~","~에게 확인하다"],
+["lc-scaffolding","scaffolding","비계(공사장에 임시 가설물)"],
+["lc-check-the-cateteria","Check the cateteria","카페테리아에 가보세요."],
+["lc-i-look-forward-to-it","I look forward to it.","기대하고 있겠습니다."],
+["lc-put-together","put together","준비하다"],
+["lc-product-s-performance","product's performance","판매실적"],
+["lc-push-back","push back","미루다"],
+["lc-i-reffered-to-the-instructions","I reffered to the instructions.","저는 안내사항들을 참고하였습니다."],
+["lc-won-t-you-aren-t-you-supposed-to","Won't you~ ? / Aren't you supposed to ~ ?","~할 예정이지 않나요?"],
+["lc-who-can-i-contact","Who can I contact ~ ?","누구에게 연락하면 되나요?"],
+["lc-get-off-at","Get off at ~.","~에 내리세욤."]
+];
+
 const DECKS = {
   par7:  { title: "토익 Part7 빈출 어휘", words: WORDS_PAR7 },
   p15:   { title: "실전1-5",             words: WORDS_P15 },
   p67:   { title: "실전6-7",             words: WORDS_P67 },
   p5:    { title: "Part5",               words: WORDS_P5 },
+  lc:    { title: "LC",                  words: WORDS_LC },
   coll:  { title: "Collocation",         words: WORDS_COLLOCATION },
   gram:  { title: "Grammer",             words: WORDS_GRAMMER }
 };
@@ -1053,7 +1076,7 @@ function rebuildIndex(){
 }
 
 /* ---------------- Storage ---------------- */
-let wrongIdsMap = { par7: [], p15: [], p67: [], p5: [], coll: [], gram: [] };
+let wrongIdsMap = { par7: [], p15: [], p67: [], p5: [], lc: [], coll: [], gram: [] };
 
 function storageKey(deckId){ return 'wrong_word_ids_' + deckId; }
 
@@ -1224,7 +1247,7 @@ function shuffle(arr){
 }
 
 let isFullQuiz = true;
-let quizDir = 'k2e'; // 'k2e' = 뜻을 보고 영어 고르기, 'e2k' = 영어를 보고 뜻 고르기
+let quizDir = 'e2k'; // 'k2e' = 뜻을 보고 영어 고르기, 'e2k' = 영어를 보고 뜻 고르기
 
 function makeQuizItem(w, type, allWords){
   let correctVal, distractors;
