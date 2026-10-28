@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>토익 단어 잡아먹기</title>
+<title>토익 얌얌</title>
 <style>
   :root{
     --paper:#FFF9FB;
@@ -64,7 +64,7 @@
     display:flex;
     gap:6px;
     margin:22px 0 20px;
-    border-bottom:2px solid var(--ink);
+    border-bottom:2px solid var(--accent);
   }
   .tab{
     position:relative;
@@ -72,7 +72,7 @@
     padding:11px 6px;
     text-align:center;
     background:#FBE6EF;
-    border:2px solid var(--ink);
+    border:2px solid var(--accent);
     border-bottom:none;
     border-radius:10px 10px 0 0;
     font-weight:700;
@@ -128,8 +128,8 @@
   .deck-card:hover{ transform:translateY(-1px); }
   .deck-card.active{
     background:#fff;
-    border-color:var(--ink);
-    box-shadow:0 4px 10px rgba(32,41,58,0.08);
+    border-color:var(--accent);
+    box-shadow:0 4px 12px rgba(214,88,143,0.18);
   }
   .deck-card .deck-name{
     font-weight:700;
@@ -273,8 +273,16 @@
     transition: filter .12s ease, transform .08s ease;
   }
   .btn:active{ transform:scale(0.97); }
-  .btn-primary{ background:var(--ink); color:#fff; }
-  .btn-primary:hover{ filter:brightness(1.15); }
+  .btn-primary{ background:linear-gradient(135deg,#E8719F,#D6588F 55%,#C0509A); color:#fff; box-shadow:0 6px 14px rgba(214,88,143,0.28); }
+  .btn-primary:hover{ filter:brightness(1.06); }
+  .btn-wide{ display:block; width:100%; text-align:center; padding:15px 18px; font-size:16px; border-radius:14px; }
+  .foot-row .btn{ flex:1 1 130px; text-align:center; padding:13px 14px; border-radius:12px; }
+  .masthead h1{ color:#E8307E; font-size:36px; font-weight:800; }
+  .masthead .deck-name-line{ display:inline-block; padding:4px 14px; border-radius:999px; background:var(--accent-soft); }
+  .dir-wrap{ display:flex; gap:6px; padding:4px; margin:10px 0 0; background:var(--accent-soft); border-radius:12px; }
+  .dir-btn{ flex:1; border:none; background:transparent; padding:9px 6px; border-radius:9px; font-size:13px; font-weight:700; color:var(--ink-soft); cursor:pointer; font-family:inherit; }
+  .dir-btn.on{ background:#fff; color:var(--accent); box-shadow:0 2px 6px rgba(214,88,143,0.18); }
+  .all-btn-wrap{ margin:14px 0 6px; display:flex; justify-content:center; }
   .btn-ghost{ background:transparent; color:var(--ink-soft); border:1.5px solid var(--paper-line); }
   .btn-ghost:hover{ border-color:var(--ink-soft); color:var(--ink); }
   .btn:disabled{ opacity:0.4; cursor:not-allowed; }
@@ -435,16 +443,21 @@
 <body>
 <div class="app">
   <div class="masthead">
-    <h1>토익 단어 잡아먹기</h1>
-    <p id="deck-title" class="deck-name-line">토익 Part7 빈출 어휘</p>
+    <h1>토익 얌얌🐿️</h1>
+    <p class="deck-name-line">ALL NEW 토익 실전모의고사 어휘</p>
     <p id="subtitle">총 82개 단어 · 4지선다 시험지</p>
   </div>
 
   <div class="deck-label">단어장 선택</div>
   <div class="deck-row" id="deck-row"></div>
 
-  <div style="margin:10px 0 4px;">
-    <button class="btn btn-primary" onclick="switchTab('mix')">🎲 전체에서 랜덤 20문제</button>
+  <div class="all-btn-wrap">
+    <button class="btn btn-primary btn-wide" onclick="switchTab('mix')">🎲 전체에서 랜덤 20문제</button>
+  </div>
+
+  <div class="dir-wrap">
+    <button class="dir-btn" id="dir-k2e" onclick="setDir('k2e')">뜻 보고 영어 고르기</button>
+    <button class="dir-btn" id="dir-e2k" onclick="setDir('e2k')">영어 보고 뜻 고르기</button>
   </div>
 
   <div class="tabs">
@@ -461,6 +474,12 @@
 </div>
 
 <script>
+const memStore = {};
+const kv = {
+  async get(k){ try{ const v = localStorage.getItem(k); return v === null ? null : { value: v }; }catch(e){ return (k in memStore) ? { value: memStore[k] } : null; } },
+  async set(k, v){ try{ localStorage.setItem(k, v); }catch(e){ memStore[k] = v; } },
+  async delete(k){ try{ localStorage.removeItem(k); }catch(e){ delete memStore[k]; } }
+};
 /* ---------------- Word data ---------------- */
 const WORDS_PAR7 = [
 ["be-on-track","be on track","진행 중이다"],
@@ -1041,7 +1060,7 @@ function storageKey(deckId){ return 'wrong_word_ids_' + deckId; }
 async function loadWrongIds(){
   for(const deckId of Object.keys(DECKS)){
     try{
-      const res = await window.storage.get(storageKey(deckId), false);
+      const res = await kv.get(storageKey(deckId), false);
       wrongIdsMap[deckId] = (res && res.value) ? JSON.parse(res.value) : [];
     }catch(e){
       wrongIdsMap[deckId] = [];
@@ -1050,7 +1069,7 @@ async function loadWrongIds(){
 }
 async function saveWrongIds(deckId){
   try{
-    await window.storage.set(storageKey(deckId), JSON.stringify(wrongIdsMap[deckId]), false);
+    await kv.set(storageKey(deckId), JSON.stringify(wrongIdsMap[deckId]), false);
   }catch(e){ /* ignore */ }
 }
 async function addWrong(id, deckId){
@@ -1088,7 +1107,7 @@ function progressKey(deckId){ return 'quiz_progress_' + deckId; }
 async function loadProgress(){
   for(const deckId of Object.keys(DECKS)){
     try{
-      const res = await window.storage.get(progressKey(deckId), false);
+      const res = await kv.get(progressKey(deckId), false);
       progressMap[deckId] = (res && res.value) ? JSON.parse(res.value) : null;
     }catch(e){
       progressMap[deckId] = null;
@@ -1098,14 +1117,14 @@ async function loadProgress(){
 async function saveProgress(deckId){
   try{
     if(progressMap[deckId]){
-      await window.storage.set(progressKey(deckId), JSON.stringify(progressMap[deckId]), false);
+      await kv.set(progressKey(deckId), JSON.stringify(progressMap[deckId]), false);
     }
   }catch(e){ /* ignore */ }
 }
 async function clearProgress(deckId){
   progressMap[deckId] = null;
   try{
-    await window.storage.delete(progressKey(deckId), false);
+    await kv.delete(progressKey(deckId), false);
   }catch(e){ /* ignore - key may not exist */ }
 }
 
@@ -1128,7 +1147,6 @@ function selectDeck(id){
   if(id === currentDeck) return;
   currentDeck = id;
   rebuildIndex();
-  document.getElementById('deck-title').textContent = DECKS[id].title;
   document.getElementById('subtitle').textContent = `총 ${DECKS[id].words.length}개 단어 · 4지선다 시험지`;
   renderDeckRow();
   renderBadge();
@@ -1200,6 +1218,7 @@ function shuffle(arr){
 }
 
 let isFullQuiz = true;
+let quizDir = 'k2e'; // 'k2e' = 뜻을 보고 영어 고르기, 'e2k' = 영어를 보고 뜻 고르기
 
 function makeQuizItem(w, type, allWords){
   let correctVal, distractors;
@@ -1223,7 +1242,7 @@ function makeTypesFor(order, quizType){
     return Array(order.length).fill('seq');
   }
   // Always show the English word/phrase and ask for its Korean meaning.
-  return Array(order.length).fill('e2k');
+  return Array(order.length).fill(quizDir);
 }
 
 function buildQuiz(size, forceNew){
@@ -1254,7 +1273,7 @@ function buildQuiz(size, forceNew){
   const saved = !forceNew ? progressMap[currentDeck] : null;
   const savedValid = saved && Array.isArray(saved.order)
     && saved.order.length === allWords.length
-    && saved.order.every(([id]) => !!byId[id]);
+    && saved.order.every(([id, t]) => !!byId[id] && t === quizDir);
 
   if(savedValid){
     quiz = saved.order.map(([id, type]) => makeQuizItem(byId[id], type, allWords));
@@ -1421,14 +1440,14 @@ function buildMixQuiz(){
   mixQuiz = picked.map((w) => {
     // Pair-type decks (collocation "next word" quizzes) ask the sequence question;
     // every other deck always shows English and asks for the Korean meaning.
-    const type = w.quizType === 'pair' ? 'seq' : 'e2k';
-    const correctVal = type === 'seq' ? w.kr : w.kr; // 'seq': w.kr holds the paired next word/phrase
+    const type = w.quizType === 'pair' ? 'seq' : quizDir;
+    const correctVal = type === 'k2e' ? w.en : w.kr;
     // Distractors always come from the SAME deck as the question word, never mixed across decks.
     const sameDeck = pool.filter(x => x.deckId === w.deckId && x.id !== w.id);
     const distractorPool = type === 'seq'
       ? sameDeck.filter(x => x.quizType === 'pair')
       : sameDeck;
-    let distractors = shuffle(distractorPool).slice(0, 3).map(x => x.kr);
+    let distractors = shuffle(distractorPool).slice(0, 3).map(x => type === 'k2e' ? x.en : x.kr);
     const options = shuffle([correctVal, ...distractors]);
     return { word: w, type, options, correctVal };
   });
@@ -1536,6 +1555,18 @@ function renderMixSummary(){
   `;
 }
 
+function renderDir(){
+  ['k2e','e2k'].forEach(d => document.getElementById('dir-' + d).classList.toggle('on', d === quizDir));
+}
+async function setDir(d){
+  if(d === quizDir) return;
+  quizDir = d;
+  await kv.set('quiz_dir', d);
+  renderDir();
+  buildAndRender(undefined, true);
+  if(typeof buildMixQuiz === 'function' && currentTab === 'mix') buildAndRenderMix();
+}
+
 function buildAndRenderMix(){
   buildMixQuiz();
   renderMixQuiz();
@@ -1599,7 +1630,7 @@ let scoreLog = null;
 
 async function loadScoreLog(){
   try{
-    const res = await window.storage.get('toeic_score_log', false);
+    const res = await kv.get('toeic_score_log', false);
     scoreLog = (res && res.value) ? JSON.parse(res.value) : DEFAULT_SCORE_LOG.slice();
   }catch(e){
     scoreLog = DEFAULT_SCORE_LOG.slice();
@@ -1607,7 +1638,7 @@ async function loadScoreLog(){
 }
 async function saveScoreLog(){
   try{
-    await window.storage.set('toeic_score_log', JSON.stringify(scoreLog), false);
+    await kv.set('toeic_score_log', JSON.stringify(scoreLog), false);
   }catch(e){ /* ignore */ }
 }
 
@@ -1693,6 +1724,8 @@ function renderScoreLog(){
 async function init(){
   document.getElementById('quiz-view').innerHTML = '<div class="loading">단어장을 불러오는 중...</div>';
   rebuildIndex();
+  try{ const r = await kv.get('quiz_dir'); if(r && (r.value === 'e2k' || r.value === 'k2e')) quizDir = r.value; }catch(e){}
+  renderDir();
   await loadWrongIds();
   await loadProgress();
   await loadScoreLog();
