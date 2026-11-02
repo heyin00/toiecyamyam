@@ -1347,9 +1347,9 @@ function renderQuiz(){
   answeredCurrent = false;
   const pct = Math.round((qIndex / quiz.length) * 100);
 
-  let optsHtml = q.options.map(opt => {
+  let optsHtml = q.options.map((opt, i) => {
     const safe = opt.replace(/'/g, "\\'");
-    return `<button class="choice" onclick="answer(this, '${escapeAttr(opt)}')">${escapeHtml(opt)}</button>`;
+    return `<button class="choice" onclick="answer(this, ${i})">${escapeHtml(opt)}</button>`;
   }).join('');
 
   el.innerHTML = `
@@ -1376,10 +1376,11 @@ function escapeAttr(s){
   return s.replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function answer(btnEl, value){
+async function answer(btnEl, optIdx){
   if(answeredCurrent) return;
   answeredCurrent = true;
   const q = quiz[qIndex];
+  const value = q.options[optIdx];
   const isCorrect = value === q.correctVal;
   const buttons = document.querySelectorAll('#quiz-view .choice');
   buttons.forEach(b => {
@@ -1513,8 +1514,8 @@ function renderMixQuiz(){
   mixAnswered = false;
   const pct = Math.round((mixIndex / mixQuiz.length) * 100);
 
-  let optsHtml = q.options.map(opt =>
-    `<button class="choice" onclick="answerMix(this, '${escapeAttr(opt)}')">${escapeHtml(opt)}</button>`
+  let optsHtml = q.options.map((opt, i) =>
+    `<button class="choice" onclick="answerMix(this, ${i})">${escapeHtml(opt)}</button>`
   ).join('');
 
   el.innerHTML = `
@@ -1536,10 +1537,11 @@ function renderMixQuiz(){
   `;
 }
 
-async function answerMix(btnEl, value){
+async function answerMix(btnEl, optIdx){
   if(mixAnswered) return;
   mixAnswered = true;
   const q = mixQuiz[mixIndex];
+  const value = q.options[optIdx];
   const isCorrect = value === q.correctVal;
   const buttons = document.querySelectorAll('#mix-view .choice');
   buttons.forEach(b => {
