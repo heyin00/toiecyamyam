@@ -27,7 +27,7 @@
   body{
     margin:0;
     min-height:100vh;
-    background: linear-gradient(180deg, #1D5A3C 0%, #2B7350 130px, #FBF1E4 178px, #FBF1E4 100%);
+    background: radial-gradient(700px circle at 50% -5%, #1F6A48 0%, rgba(31,106,72,0) 70%), linear-gradient(180deg, #0F3D2D 0%, #0B3023 100%);
     font-family: "Noto Sans KR", "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, sans-serif;
     color:var(--ink);
     display:flex;
@@ -153,7 +153,7 @@
     border:1px solid var(--paper-line);
     border-radius:14px;
     box-shadow:var(--card-shadow);
-    padding:30px 26px 26px;
+    padding:38px 26px 26px;
     min-height:300px;
   }
   .card::before{
@@ -342,103 +342,31 @@
 
   .loading{ text-align:center; color:var(--ink-soft); padding:60px 0; font-size:14px; }
 
-  /* ---- Score log ---- */
-  .score-list{ display:flex; flex-direction:column; gap:12px; }
-  .score-card{
-    background:#fff;
-    border:1px solid var(--paper-line);
-    border-radius:14px;
-    padding:16px 18px;
-    box-shadow:0 2px 6px rgba(58,42,34,0.06);
+  /* ---- 다 외움 ---- */
+  .mini-btn{
+    position:absolute; top:19px; right:14px;
+    border:1px solid var(--paper-line); background:#fff; color:var(--accent);
+    font-family:inherit; font-size:11.5px; font-weight:700;
+    padding:4px 10px; border-radius:999px; cursor:pointer;
   }
-  .score-card-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:10px;
+  .mini-btn:hover{ background:var(--accent-soft); }
+  .done-btn{ color:var(--accent2) !important; border-color:var(--accent2) !important; }
+  .restore-btn{
+    border:1px solid var(--accent2); background:#fff; color:var(--accent2);
+    font-family:inherit; font-size:12px; font-weight:700;
+    padding:6px 10px; border-radius:8px; cursor:pointer; white-space:nowrap;
   }
-  .score-round-name{
-    font-weight:700;
-    font-size:15px;
-    color:var(--ink);
-    border:none;
-    background:transparent;
-    border-bottom:1.5px dashed var(--paper-line);
-    padding:2px 2px 4px;
-    width:120px;
-  }
-  .score-round-name:focus{ outline:none; border-bottom-color:var(--accent); }
-  .score-del{
-    border:none;
-    background:transparent;
-    color:var(--ink-soft);
-    cursor:pointer;
-    font-size:13px;
-  }
-  .score-del:hover{ color:var(--red); }
-  .score-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-bottom:10px;
-  }
-  .score-field label{
-    display:block;
-    font-size:11.5px;
-    color:var(--ink-soft);
-    margin-bottom:4px;
-    font-weight:700;
-  }
-  .score-field input[type=number]{
-    width:100%;
-    padding:8px 10px;
-    border:1.5px solid var(--paper-line);
-    border-radius:8px;
-    font-size:14px;
-    color:var(--ink);
-  }
-  .score-field input[type=number]:focus{ outline:none; border-color:var(--accent); }
-  .score-scaled{
-    font-size:12px;
-    color:var(--accent2);
-    margin-top:4px;
-    font-weight:700;
-  }
-  .score-total{
-    font-size:13px;
-    color:var(--ink);
-    background:var(--accent-soft);
-    border-radius:8px;
-    padding:8px 10px;
-    margin-bottom:10px;
-    font-weight:700;
-  }
-  .score-note{
-    width:100%;
-    min-height:50px;
-    border:1.5px solid var(--paper-line);
-    border-radius:8px;
-    padding:8px 10px;
-    font-size:13px;
-    color:var(--ink);
-    font-family:inherit;
-    resize:vertical;
-  }
-  .score-note:focus{ outline:none; border-color:var(--accent); }
-  .score-add-btn{
-    display:block;
-    width:100%;
-    margin-top:6px;
-    padding:13px;
-    border:1.5px dashed var(--paper-line);
-    background:#fff;
-    border-radius:12px;
-    color:var(--ink-soft);
-    font-weight:700;
-    font-size:14px;
-    cursor:pointer;
-  }
-  .score-add-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .restore-btn:hover{ background:var(--accent2-soft); }
+  .deck-label{ color:#E6D9B8; }
+  .masthead .deck-name-line{ background:#E8B94A; color:#4A1F12; }
+  .deck-card{ background:#FFF8EA; }
+  .deck-card.active{ border-color:#E8B94A; box-shadow:0 0 0 2px rgba(232,185,74,0.55), 0 6px 16px rgba(0,0,0,0.25); }
+  .tab{ background:#1B5A40; color:#E6D9B8; border-color:#E8B94A; }
+  .tab.active{ background:#FFFBF5; color:#C8323C; }
+  .dir-wrap{ background:rgba(255,248,234,0.14); }
+  .dir-btn{ color:#E6D9B8; }
+  .dir-btn.on{ color:#C8323C; }
+  .loading{ color:#E6D9B8; }
 </style>
 </head>
 <body>
@@ -465,13 +393,13 @@
     <div class="tab active" id="tab-quiz" onclick="switchTab('quiz')">시험지</div>
     <div class="tab" id="tab-mix" onclick="switchTab('mix')">쪽지시험</div>
     <div class="tab" id="tab-wb" onclick="switchTab('wb')">오답노트<span class="badge zero" id="wb-badge">0</span></div>
-    <div class="tab" id="tab-score" onclick="switchTab('score')">성적 기록</div>
+    <div class="tab" id="tab-done" onclick="switchTab('done')">다 외움<span class="badge zero" id="done-badge">0</span></div>
   </div>
 
   <div id="quiz-view"></div>
   <div id="mix-view" style="display:none;"></div>
   <div id="wb-view" style="display:none;"></div>
-  <div id="score-view" style="display:none;"></div>
+  <div id="done-view" style="display:none;"></div>
 </div>
 
 <script>
@@ -1123,6 +1051,88 @@ function rebuildIndex(){
   DECKS[currentDeck].words.forEach(w => byId[w[0]] = w);
 }
 
+/* ---------------- 다 외움 (단어장에서 실제로 빠지는 단어) ---------------- */
+let masteredSet = new Set();
+async function loadMastered(){
+  try{
+    const r = await kv.get('mastered_ids');
+    if(r && r.value) masteredSet = new Set(JSON.parse(r.value));
+  }catch(e){}
+}
+function saveMastered(){
+  try{ kv.set('mastered_ids', JSON.stringify([...masteredSet])); }catch(e){}
+}
+function applyMastered(){
+  Object.keys(DECKS).forEach(k => {
+    const d = DECKS[k];
+    if(!d.all) d.all = d.words.slice();
+    d.words = d.all.filter(w => !masteredSet.has(w[0]));
+  });
+  rebuildIndex();
+}
+function masteredCount(){
+  let n = 0;
+  Object.keys(DECKS).forEach(k => { n += DECKS[k].all.filter(w => masteredSet.has(w[0])).length; });
+  return n;
+}
+function renderDoneBadge(){
+  const n = masteredCount();
+  const b = document.getElementById('done-badge');
+  b.textContent = n;
+  b.className = 'badge' + (n === 0 ? ' zero' : '');
+}
+function updateSubtitle(){
+  document.getElementById('subtitle').textContent = `총 ${DECKS[currentDeck].words.length}개 단어 · 4지선다 시험지`;
+}
+// 단어 하나를 단어장에서 빼고(오답노트에서도 제거) 화면 숫자를 갱신한다.
+function masterWord(id, deckId){
+  masteredSet.add(id);
+  saveMastered();
+  const wl = wrongIdsMap[deckId] || [];
+  const wi = wl.indexOf(id);
+  if(wi > -1){ wl.splice(wi, 1); saveWrongIds(deckId); }
+  applyMastered();
+  updateSubtitle();
+  renderDeckRow();
+  renderBadge();
+  renderDoneBadge();
+}
+function restoreWord(id, deckId){
+  masteredSet.delete(id);
+  saveMastered();
+  applyMastered();
+  updateSubtitle();
+  renderDeckRow();
+  renderDoneBadge();
+  renderDone();
+}
+function renderDone(){
+  const el = document.getElementById('done-view');
+  let total = 0, html = '';
+  Object.keys(DECKS).forEach(deckId => {
+    const items = DECKS[deckId].all.filter(w => masteredSet.has(w[0]));
+    if(!items.length) return;
+    total += items.length;
+    html += `<div class="deck-label">${escapeHtml(DECKS[deckId].title)} · ${items.length}개</div><div class="wb-list">`;
+    items.forEach(w => {
+      html += `
+      <div class="wb-row">
+        <div class="wb-text">
+          <div class="wb-en">${escapeHtml(w[1])}</div>
+          <div class="wb-kr">${escapeHtml(w[2])}</div>
+        </div>
+        <button class="restore-btn" onclick="restoreWord('${w[0]}', '${deckId}')">되돌리기</button>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  if(total === 0){
+    el.innerHTML = `<div class="wb-empty"><span class="emoji">🌟</span>아직 다 외운 단어가 없어요.<br>시험 중 [다 외움]을 누르면 그 단어는 단어장에서 빠지고 여기에 모여요.</div>`;
+    return;
+  }
+  el.innerHTML = html;
+}
+
 /* ---------------- Storage ---------------- */
 let wrongIdsMap = { par7: [], p15: [], p67: [], p5: [], lc: [], coll: [], ws: [], wsrd: [], gram: [] };
 
@@ -1209,7 +1219,7 @@ function renderDeckRow(){
     return `
       <div class="deck-card${active}" onclick="selectDeck('${id}')">
         <div class="deck-name">${escapeHtml(d.title)}</div>
-        <div class="deck-meta">단어 ${d.words.length}개${wrongCount > 0 ? ' · 틀린 단어 ' + wrongCount + '개' : ''}</div>
+        <div class="deck-meta">단어 ${d.words.length}개${wrongCount > 0 ? ' · 틀린 단어 ' + wrongCount + '개' : ''}${(d.all && d.all.length > d.words.length) ? ' · 다 외움 ' + (d.all.length - d.words.length) + '개' : ''}</div>
       </div>`;
   }).join('');
 }
@@ -1218,7 +1228,7 @@ function selectDeck(id){
   if(id === currentDeck) return;
   currentDeck = id;
   rebuildIndex();
-  document.getElementById('subtitle').textContent = `총 ${DECKS[id].words.length}개 단어 · 4지선다 시험지`;
+  updateSubtitle();
   renderDeckRow();
   renderBadge();
   if(currentTab === 'wb'){
@@ -1235,14 +1245,14 @@ function switchTab(t){
   document.getElementById('tab-quiz').classList.toggle('active', t==='quiz');
   document.getElementById('tab-mix').classList.toggle('active', t==='mix');
   document.getElementById('tab-wb').classList.toggle('active', t==='wb');
-  document.getElementById('tab-score').classList.toggle('active', t==='score');
+  document.getElementById('tab-done').classList.toggle('active', t==='done');
   document.getElementById('quiz-view').style.display = t==='quiz' ? 'block' : 'none';
   document.getElementById('mix-view').style.display = t==='mix' ? 'block' : 'none';
   document.getElementById('wb-view').style.display = t==='wb' ? 'block' : 'none';
-  document.getElementById('score-view').style.display = t==='score' ? 'block' : 'none';
+  document.getElementById('done-view').style.display = t==='done' ? 'block' : 'none';
   if(t==='wb') renderWordbook();
   if(t==='mix') buildAndRenderMix();
-  if(t==='score') renderScoreLog();
+  if(t==='done') renderDone();
 }
 
 /* ---------------- Wordbook view ---------------- */
@@ -1401,7 +1411,7 @@ function renderQuiz(){
         <div class="holes"><span></span><span></span><span></span></div>
         <div class="summary">
           <p>🌱</p>
-          <p>이 단어장에는 아직 단어가 없어요.<br>단어 사진을 올려주시면 시험지를 만들어 드릴게요.</p>
+          <p>${(DECKS[currentDeck].all && DECKS[currentDeck].all.length >= 4) ? '남은 단어가 4개보다 적어서 시험지를 만들 수 없어요.<br>[다 외움] 탭에서 단어를 되돌릴 수 있어요.' : '이 단어장에는 아직 단어가 없어요.<br>단어 사진을 올려주시면 시험지를 만들어 드릴게요.'}</p>
         </div>
       </div>`;
     return;
@@ -1422,6 +1432,7 @@ function renderQuiz(){
   el.innerHTML = `
     <div class="card">
       <div class="holes"><span></span><span></span><span></span></div>
+      <button class="mini-btn" onclick="buildAndRender(20)">🎲 랜덤 20</button>
       <div class="progress-row">
         <span>${qIndex + 1} / ${quiz.length} 문제${(isFullQuiz && qIndex > 0) ? ' · 이어서 풀기' : ''}</span>
         <span>정답 ${correctCount}개</span>
@@ -1431,8 +1442,7 @@ function renderQuiz(){
       <div class="q-word">${escapeHtml(q.type === 'k2e' ? q.word[2] : q.word[1])}</div>
       <div class="choices">${optsHtml}</div>
       <div class="foot-row">
-        <button class="btn btn-ghost" onclick="buildAndRender(undefined, true)">🔀 새 시험지</button>
-        <button class="btn btn-ghost" onclick="buildAndRender(20)">🎲 랜덤 20문제</button>
+        <button class="btn btn-ghost done-btn" onclick="masterCurrent()">✅ 다 외움</button>
         <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>다음 →</button>
       </div>
     </div>
@@ -1466,14 +1476,49 @@ async function answer(btnEl, optIdx){
     correctCount++;
     await removeWrong(q.word[0]);
     const qIndexAtAnswer = qIndex;
+    const tok = ++advanceToken;
     setTimeout(() => {
-      if(qIndex === qIndexAtAnswer){
+      if(tok === advanceToken && qIndex === qIndexAtAnswer){
         nextQuestion();
       }
     }, 500);
   } else {
     await addWrong(q.word[0]);
   }
+}
+
+let advanceToken = 0;
+let masterBusy = false;
+function showCorrectGreen(viewId, correctVal){
+  document.querySelectorAll('#' + viewId + ' .choice').forEach(btn => {
+    btn.disabled = true;
+    if(btn.textContent === correctVal) btn.classList.add('correct');
+  });
+}
+function masterCurrent(){
+  const q = quiz[qIndex];
+  if(!q || masterBusy) return;
+  masterBusy = true;
+  advanceToken++;
+  answeredCurrent = true;
+  showCorrectGreen('quiz-view', q.correctVal);   // 정답을 초록색으로 먼저 보여준다
+  const deckId = currentDeck;
+  setTimeout(() => {
+    masterBusy = false;
+    if(quiz[qIndex] !== q || currentDeck !== deckId) return;
+    masterWord(q.word[0], deckId);
+    quiz.splice(qIndex, 1);
+    answeredCurrent = false;
+    if(isFullQuiz){
+      if(qIndex < quiz.length){
+        progressMap[deckId] = { order: quiz.map(x => [x.word[0], x.type]), index: qIndex, correct: correctCount };
+        saveProgress(deckId);
+      } else {
+        clearProgress(deckId);
+      }
+    }
+    renderQuiz();
+  }, 800);
 }
 
 function nextQuestion(){
@@ -1495,14 +1540,14 @@ function renderSummary(){
   el.innerHTML = `
     <div class="card">
       <div class="holes"><span></span><span></span><span></span></div>
+      <button class="mini-btn" onclick="buildAndRender(20)">🎲 랜덤 20</button>
       <div class="summary">
         <p>시험지 완료!</p>
         <div class="score">${correctCount} / ${quiz.length}</div>
         <p>정답률 ${pct}% · 틀린 단어는 자동으로 [오답노트]에 저장됐어요</p>
       </div>
       <div class="foot-row" style="justify-content:center;">
-        <button class="btn btn-ghost" onclick="buildAndRender(20)">🎲 랜덤 20문제</button>
-        <button class="btn btn-primary" onclick="buildAndRender(undefined, true)">🔀 새 시험지(랜덤)</button>
+        <button class="btn btn-primary btn-wide" onclick="${isFullQuiz ? 'buildAndRender(undefined, true)' : 'buildAndRender(20)'}">다시 풀기</button>
       </div>
     </div>
   `;
@@ -1519,10 +1564,12 @@ let mixQuiz = [];
 let mixIndex = 0;
 let mixCorrect = 0;
 let mixAnswered = false;
+let mixToken = 0;
 
 function getAllWords(){
   let combined = [];
   Object.keys(DECKS).forEach(deckId => {
+    if(DECKS[deckId].words.length < 4) return; // 보기를 만들 단어가 모자라면 제외
     const quizType = DECKS[deckId].quizType || 'trans';
     DECKS[deckId].words.forEach(w => {
       combined.push({ id: w[0], en: w[1], kr: w[2], deckId, deckTitle: DECKS[deckId].title, quizType });
@@ -1598,7 +1645,7 @@ function renderMixQuiz(){
       <div class="q-word">${escapeHtml(q.type === 'k2e' ? q.word.kr : q.word.en)}</div>
       <div class="choices">${optsHtml}</div>
       <div class="foot-row">
-        <button class="btn btn-ghost" onclick="buildAndRenderMix()">🔀 새 쪽지시험</button>
+        <button class="btn btn-ghost done-btn" onclick="masterMixCurrent()">✅ 다 외움</button>
         <button class="btn btn-primary" id="mix-next-btn" onclick="nextMixQuestion()" disabled>다음 →</button>
       </div>
     </div>
@@ -1628,14 +1675,33 @@ async function answerMix(btnEl, optIdx){
     mixCorrect++;
     await removeWrong(q.word.id, q.word.deckId);
     const mixIndexAtAnswer = mixIndex;
+    const tok = ++mixToken;
     setTimeout(() => {
-      if(mixIndex === mixIndexAtAnswer){
+      if(tok === mixToken && mixIndex === mixIndexAtAnswer){
         nextMixQuestion();
       }
     }, 500);
   } else {
     await addWrong(q.word.id, q.word.deckId);
   }
+}
+
+let mixMasterBusy = false;
+function masterMixCurrent(){
+  const q = mixQuiz[mixIndex];
+  if(!q || mixMasterBusy) return;
+  mixMasterBusy = true;
+  mixToken++;
+  mixAnswered = true;
+  showCorrectGreen('mix-view', q.correctVal);
+  setTimeout(() => {
+    mixMasterBusy = false;
+    if(mixQuiz[mixIndex] !== q) return;
+    masterWord(q.word.id, q.word.deckId);
+    mixQuiz.splice(mixIndex, 1);
+    mixAnswered = false;
+    renderMixQuiz();
+  }, 800);
 }
 
 function nextMixQuestion(){
@@ -1679,163 +1745,17 @@ function buildAndRenderMix(){
 }
 
 /* ---------------- Init ---------------- */
-/* ---------------- TOEIC score log ---------------- */
-const SCORE_BUCKETS = [
-  [96,100,"475-495","460-495"],
-  [91,95,"435-495","425-490"],
-  [86,90,"405-470","400-465"],
-  [81,85,"370-450","375-440"],
-  [76,80,"345-420","340-415"],
-  [71,75,"320-390","310-390"],
-  [66,70,"290-360","285-370"],
-  [61,65,"265-335","255-340"],
-  [56,60,"240-310","230-310"],
-  [51,55,"215-280","200-275"],
-  [46,50,"190-255","170-245"],
-  [41,45,"160-230","140-215"],
-  [36,40,"130-205","115-180"],
-  [31,35,"105-175","95-150"],
-  [26,30,"85-145","75-120"],
-  [21,25,"60-115","60-95"],
-  [16,20,"30-90","45-75"],
-  [11,15,"5-70","30-55"],
-  [6,10,"5-60","10-40"],
-  [1,5,"5-50","5-30"],
-  [0,0,"5-35","5-15"]
-];
-function scaledRange(raw, part){
-  if(raw === '' || raw === null || raw === undefined) return '';
-  const n = Number(raw);
-  if(isNaN(n)) return '';
-  for(const [min, max, l, r] of SCORE_BUCKETS){
-    if(n >= min && n <= max) return part === 'L' ? l : r;
-  }
-  return '';
-}
-function midpoint(rangeStr){
-  if(!rangeStr) return null;
-  const parts = rangeStr.split('-').map(Number);
-  if(parts.length !== 2 || parts.some(isNaN)) return null;
-  return (parts[0] + parts[1]) / 2;
-}
-
-const DEFAULT_SCORE_LOG = [
-  { round: "실전1",  lc: 100, rd: 86,  note: "" },
-  { round: "실전2",  lc: null, rd: 91, note: "" },
-  { round: "실전3",  lc: null, rd: 85, note: "" },
-  { round: "실전4",  lc: null, rd: 87, note: "" },
-  { round: "실전5",  lc: null, rd: 90, note: "" },
-  { round: "실전6",  lc: null, rd: 87, note: "" },
-  { round: "실전7",  lc: null, rd: null, note: "앞에 3개 다 맞히기 !!!" },
-  { round: "실전8",  lc: null, rd: 90, note: "좀 더 세부적인 부분을 정확하게 해석하는 능력이 필요할듯" },
-  { round: "실전9",  lc: null, rd: null, note: "오늘 part5 고득점 보기" },
-  { round: "실전10", lc: null, rd: null, note: "" }
-];
-
-let scoreLog = null;
-
-async function loadScoreLog(){
-  try{
-    const res = await kv.get('toeic_score_log', false);
-    scoreLog = (res && res.value) ? JSON.parse(res.value) : DEFAULT_SCORE_LOG.slice();
-  }catch(e){
-    scoreLog = DEFAULT_SCORE_LOG.slice();
-  }
-}
-async function saveScoreLog(){
-  try{
-    await kv.set('toeic_score_log', JSON.stringify(scoreLog), false);
-  }catch(e){ /* ignore */ }
-}
-
-function updateScoreField(idx, field, value){
-  if(!scoreLog[idx]) return;
-  if(field === 'lc' || field === 'rd'){
-    scoreLog[idx][field] = value === '' ? null : Number(value);
-  } else {
-    scoreLog[idx][field] = value;
-  }
-  saveScoreLog();
-  // Only re-render the affected card's computed bits, not the whole list (keeps focus while typing).
-  const card = document.querySelector(`.score-card[data-idx="${idx}"]`);
-  if(card){
-    const entry = scoreLog[idx];
-    const lcScaled = scaledRange(entry.lc, 'L');
-    const rdScaled = scaledRange(entry.rd, 'R');
-    const lcEl = card.querySelector('.score-lc-scaled');
-    const rdEl = card.querySelector('.score-rd-scaled');
-    if(lcEl) lcEl.textContent = lcScaled ? `환산 ${lcScaled}` : '';
-    if(rdEl) rdEl.textContent = rdScaled ? `환산 ${rdScaled}` : '';
-    const totalEl = card.querySelector('.score-total');
-    if(totalEl) totalEl.textContent = totalLabel(lcScaled, rdScaled);
-  }
-}
-
-function totalLabel(lcScaled, rdScaled){
-  const lm = midpoint(lcScaled);
-  const rm = midpoint(rdScaled);
-  if(lm === null || rm === null) return '예상 총점: LC/RD 원점수를 모두 입력하면 계산돼요';
-  const total = Math.round((lm + rm) / 5) * 5;
-  return `예상 총점(중간값 기준) 약 ${total}점 (LC ${lcScaled} + RD ${rdScaled})`;
-}
-
-function addScoreRound(){
-  const n = scoreLog.length + 1;
-  scoreLog.push({ round: `실전${n}`, lc: null, rd: null, note: "" });
-  saveScoreLog();
-  renderScoreLog();
-}
-function removeScoreRound(idx){
-  scoreLog.splice(idx, 1);
-  saveScoreLog();
-  renderScoreLog();
-}
-
-function renderScoreLog(){
-  const el = document.getElementById('score-view');
-  if(!scoreLog){
-    el.innerHTML = '<div class="loading">불러오는 중...</div>';
-    return;
-  }
-  let html = '<div class="score-list">';
-  scoreLog.forEach((entry, idx) => {
-    const lcScaled = scaledRange(entry.lc, 'L');
-    const rdScaled = scaledRange(entry.rd, 'R');
-    html += `
-      <div class="score-card" data-idx="${idx}">
-        <div class="score-card-head">
-          <input class="score-round-name" value="${escapeAttr(entry.round)}" onchange="updateScoreField(${idx}, 'round', this.value)">
-          <button class="score-del" onclick="removeScoreRound(${idx})">삭제</button>
-        </div>
-        <div class="score-grid">
-          <div class="score-field">
-            <label>LC 원점수 (0-100)</label>
-            <input type="number" min="0" max="100" value="${entry.lc ?? ''}" onchange="updateScoreField(${idx}, 'lc', this.value)">
-            <div class="score-scaled score-lc-scaled">${lcScaled ? '환산 ' + lcScaled : ''}</div>
-          </div>
-          <div class="score-field">
-            <label>RD 원점수 (0-100)</label>
-            <input type="number" min="0" max="100" value="${entry.rd ?? ''}" onchange="updateScoreField(${idx}, 'rd', this.value)">
-            <div class="score-scaled score-rd-scaled">${rdScaled ? '환산 ' + rdScaled : ''}</div>
-          </div>
-        </div>
-        <div class="score-total">${totalLabel(lcScaled, rdScaled)}</div>
-        <textarea class="score-note" placeholder="메모 (예: 헷갈렸던 파트, 다음에 신경 쓸 점)" onchange="updateScoreField(${idx}, 'note', this.value)">${escapeHtml(entry.note || '')}</textarea>
-      </div>`;
-  });
-  html += '</div><button class="score-add-btn" onclick="addScoreRound()">+ 새 회차 추가</button>';
-  el.innerHTML = html;
-}
-
 async function init(){
   document.getElementById('quiz-view').innerHTML = '<div class="loading">단어장을 불러오는 중...</div>';
-  rebuildIndex();
   try{ const r = await kv.get('quiz_dir'); if(r && (r.value === 'e2k' || r.value === 'k2e')) quizDir = r.value; }catch(e){}
   renderDir();
   await loadWrongIds();
   await loadSeen();
+  await loadMastered();
+  applyMastered();
+  updateSubtitle();
+  renderDoneBadge();
   await loadProgress();
-  await loadScoreLog();
   renderDeckRow();
   renderBadge();
   buildAndRender();
@@ -1877,7 +1797,7 @@ init();
       }
       ctx.beginPath();
       ctx.fillStyle = 'rgba(255,255,255,' + f.a + ')';
-      ctx.shadowColor = 'rgba(90,40,30,0.4)';
+      ctx.shadowColor = 'rgba(0,0,0,0.35)';
       ctx.shadowBlur = 3;
       ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
       ctx.fill();
